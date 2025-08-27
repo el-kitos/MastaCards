@@ -6,7 +6,7 @@ Primero que todo hola, segundo francia. Este juego, mas argento que el mate va a
 -----------------------------------------------------------------------------------------------------
 
 ## Truco
------------------------------------------------------------------------------------------------------
+-----------------------------------------------------------------------------------------------------   
 **Truco Argento** es el clásico de siempre llevado a la compu. No hace falta explicar mucho porque todos sabemos de qué va: cartas, mentiras, señas, gritos y quilombo asegurado. La idea es tener la misma experiencia que en la mesa con amigos, pero en digital, para seguir jugando aunque no estemos todos juntos. Acá podés cantar truco, retruco, vale cuatro, hacerte el vivo con el envido y hasta tirar la falta envido si te animás. Obvio que no faltan las típicas jugadas para despistar y las manos que se ganan más por chamuyo que por cartas.
 
 En resumen: el mismo truco que jugamos desde siempre, pero sin necesidad de barajar ni juntar las cartas del piso.
