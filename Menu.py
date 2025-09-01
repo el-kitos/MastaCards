@@ -88,21 +88,21 @@ def menu_principal():
                 elif event.key in (pygame.K_RETURN, pygame.K_SPACE):
                     eleccion = OPCIONES_PRINCIPAL[seleccion]
                     if eleccion == "EXIT": return "exit"
-                    if eleccion == "PLAY": return menu_play()
+                    if eleccion == "PLAY": return "play"  # siempre devuelve 'play'
                     if eleccion == "TUTORIAL": return "tutorial"
 
             if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 if rects[seleccion].collidepoint(event.pos):
                     eleccion = OPCIONES_PRINCIPAL[seleccion]
                     if eleccion == "EXIT": return "exit"
-                    if eleccion == "PLAY": return menu_play()
+                    if eleccion == "PLAY": return "play"  # siempre devuelve 'play'
                     if eleccion == "TUTORIAL": return "tutorial"
 
 
 def menu_play():
     """
     Submenú simple para PLAY. Devuelve 'new_game' o 'back'.
-    Hecho sin mostrar el título 'PLAY MENU'.
+    Sin mostrar el título 'PLAY MENU'.
     """
     opciones = ["NEW GAME", "BACK"]
     seleccion = 0
@@ -191,9 +191,10 @@ def main():
         elif destino == "play":
             elec = menu_play()
             if elec == "new_game":
-                pantalla_tutorial()  # <<< NEW GAME ahora abre la pantalla del tutorial
+                pantalla_tutorial()  # NEW GAME abre la pantalla del tutorial
         elif destino == "tutorial":
             pantalla_tutorial()
+
 
 if __name__ == "__main__":
     main()
