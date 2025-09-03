@@ -5,7 +5,7 @@ import os
 # ---------------- CONFIG ---------------- #
 ANCHO, ALTO = 1152, 700
 FPS = 60
-AMARILLO = (255, 255, 0)
+AMARILLO = (2A55, 255, 0)
 
 pygame.init()
 screen = pygame.display.set_mode((ANCHO, ALTO))
