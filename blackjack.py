@@ -118,7 +118,7 @@ def draw_hand(cards, y_pos, hide_first=False):
             screen.blit(card_images[card], (100 + i * 70, y_pos))
 
 # Juego principal
-def main():
+def mainBlackjack():
     players = [
         {"name": "Jugador 1", "money": 1000, "bet": 100},
         {"name": "Jugador 2", "money": 1000, "bet": 100}
@@ -251,4 +251,4 @@ def main():
     pygame.quit()
     print("Fin del juego.")
 
-main()
+mainBlackjack()
