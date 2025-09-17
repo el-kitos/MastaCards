@@ -1,3 +1,4 @@
+from blackjack import mainBlackjac
 import pygame
 import sys
 import os
