@@ -246,9 +246,10 @@ def mainBlackjack():
 
             clock.tick(30)
 
-        current_player = (current_player + 1) % 2
+        current_player = (current_player + 1) % 2 
 
-    pygame.quit()
+
+    pygame.quit()   
     print("Fin del juego.")
 
 mainBlackjack()
