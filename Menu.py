@@ -279,3 +279,8 @@ def main():
 
 if __name__ == "__main__":
     main()
+<<<<<<< Updated upstream
+=======
+
+#grasias 🥱 att los pibes de compu
+>>>>>>> Stashed changes
