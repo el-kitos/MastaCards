@@ -264,7 +264,7 @@ class Juego:
         return boton_rects, retirar_rect
 
 
-def main():
+def mainMinas():
     juego = Juego()
     clock = pygame.time.Clock()
 
@@ -300,4 +300,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    mainMinas()
