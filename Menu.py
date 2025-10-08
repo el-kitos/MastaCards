@@ -1,4 +1,5 @@
-from blackjack import mainBlackjac
+from blackjack import mainBlackjack
+from truco.mainT import mainTruco
 import pygame
 import sys
 import random
@@ -280,4 +281,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

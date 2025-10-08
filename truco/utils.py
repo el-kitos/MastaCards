@@ -4,7 +4,7 @@ Funciones utilitarias: dibujo de cartas fallback, textos, manejo básico de even
 
 import pygame
 from typing import Tuple
-from cartas import Card
+from truco.cartas import Card
 import os
 
 ASSETS_DIR = os.path.join(os.path.dirname(__file__), "..", "assets")

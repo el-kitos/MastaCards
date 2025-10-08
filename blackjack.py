@@ -252,4 +252,5 @@ def mainBlackjack():
     pygame.quit()   
     print("Fin del juego.")
 
-mainBlackjack()
+if __name__ == "__main__":
+    mainBlackjack()

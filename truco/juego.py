@@ -3,10 +3,10 @@ Módulo principal del juego: lógica de turno, UI de juego, manejo de Truco y En
 """
 
 import pygame
-from cartas import Deck, compare_cards, calculate_envido, Card
-from utils import load_card_image, draw_text_center
-from data_manager import save_history
-from ai import choose_card_ai, decide_accept_truco, decide_accept_envido
+from truco.cartas import Deck, compare_cards, calculate_envido, Card
+from truco.utils import load_card_image, draw_text_center
+from truco.data_manager import save_history
+from truco.ai import choose_card_ai, decide_accept_truco, decide_accept_envido
 import time
 import random
 

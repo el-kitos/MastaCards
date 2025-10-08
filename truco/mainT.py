@@ -1,21 +1,23 @@
 """
 Archivo de entrada: inicializa Pygame, muestra el menu y ejecuta las pantallas.
 """
-
 import pygame
-from menu import Menu
-from juego import Game
-from data_manager import load_history
+from truco.menu import Menu
+from truco.juego import Game
+from truco.data_manager import load_history
 import sys
+
 
 SCREEN_W = 1000
 SCREEN_H = 700
 
-def main():
+def mainTruco():
     pygame.init()
     screen = pygame.display.set_mode((SCREEN_W, SCREEN_H))
     pygame.display.set_caption("Truco Argentino")
+
     menu = Menu(screen)
+
     while True:
         choice = menu.run()
         if choice == "Salir" or choice == "salir":
@@ -92,4 +94,4 @@ def show_history(screen):
                     scroll += 24
 
 if __name__ == "__main__":
-    main()
+    mainTruco()
