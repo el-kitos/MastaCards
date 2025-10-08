@@ -14,7 +14,7 @@ screen = pygame.display.set_mode((ANCHO, ALTO))
 pygame.display.set_caption("MASTA - Menú")
 clock = pygame.time.Clock()
 
-POS_MENU_PRINCIPAL_NORM = [0.399, 0.526,]
+POS_MENU_PRINCIPAL_NORM = [0.399, 0.526]
 OPCIONES_PRINCIPAL = ["PLAY", "EXIT"]
 
 WBTN = int(ANCHO * 0.38)
