@@ -1,0 +1,20 @@
+[
+  {
+    "hand_winner": "Jugador",
+    "player_score": 3,
+    "cpu_score": 2,
+    "timestamp": 1759922238.1539514
+  },
+  {
+    "hand_winner": "Jugador",
+    "player_score": 5,
+    "cpu_score": 2,
+    "timestamp": 1759922311.9580286
+  },
+  {
+    "hand_winner": "Jugador",
+    "player_score": 5,
+    "cpu_score": 3,
+    "timestamp": 1759922330.380679
+  }
+]
