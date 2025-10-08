@@ -1,5 +1,6 @@
 from blackjack import mainBlackjack
 from truco.mainT import mainTruco
+from minas import mainMinas
 import pygame
 import sys
 import random
