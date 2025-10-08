@@ -8,7 +8,7 @@ def choose_card_ai(hand: List[Card], table_cards: List[Card], turn:int) -> Card:
     Heurística simple:
     - Si tiene un 1 o 3 (alto) juega primero esas cartas cuando quiere ganar.
     - Si está perdiendo, puede jugar carta baja (aleatorio).
-    - En esta versión, comport. básico.
+    - En esta versión, comport. básico
     """
     # intentar jugar la carta con mejor truco_value
     sorted_hand = sorted(hand, key=lambda c: c.truco_value())
