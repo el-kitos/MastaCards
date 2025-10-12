@@ -50,7 +50,7 @@ def esperar_frame():
 
 # ---------------- ESCENAS ---------------- #
 def menu_principal():
-    fondo = cargar_imagen("mastafamilyfriendly.png")
+    fondo = cargar_imagen("MastaCards.png")
     seleccion = 0
     cursor_hand = pygame.cursors.Cursor(pygame.SYSTEM_CURSOR_HAND)
     cursor_arrow = pygame.cursors.Cursor(pygame.SYSTEM_CURSOR_ARROW)
