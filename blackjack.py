@@ -69,7 +69,7 @@ def render_card(card_text):
 def render_back_card():
     card = pygame.Surface((60, 90))
     card.fill(GRAY)
-    pygame.draw.rect(card, BLACK, (0, 0, 60, 90), 2)
+    pygame.draw.rect(card, BLACK, (0, 0, 60, 90 ), 2)
     pygame.draw.circle(card, BLUE, (30, 45), 20, 5)
     return card
 
