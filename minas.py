@@ -2,11 +2,12 @@ import pygame
 import sys
 import random
 import os
+import time
 
 pygame.init()
 
 # --- CONFIGURACIÓN ---
-ANCHO, ALTO = 600, 750
+ANCHO, ALTO = 600, 700
 VENTANA = pygame.display.set_mode((ANCHO, ALTO))
 pygame.display.set_caption("Juego de Minas - Temuliano")
 
@@ -17,42 +18,50 @@ GRIS = (40, 40, 40)
 VERDE = (0, 200, 100)
 ROJO = (200, 50, 50)
 CELESTE = (50, 200, 200)
+ACENTO = (140, 70, 200)
+AZUL = (50, 150, 255)
 
 # Grilla
 FILAS, COLUMNAS = 5, 5
-TAM_CASILLA = 100
-OFFSET_Y = 180
+TAM_CASILLA = 80
+GAP = 8
+OFFSET_Y = 250  # 🔽 Grilla más abajo
 
 # Fuente
 fuente = pygame.font.SysFont("Arial", 28, bold=True)
-fuente_peque = pygame.font.SysFont("Arial", 22)
+fuente_peque = pygame.font.SysFont("Arial", 20)
 
-# Multiplicadores
-MULTIPLICADORES = {
-    3: 1.054,
-    5: 1.12,
-    10: 1.23,
-    15: 1.56,
-    24: 23.0
-}
+# Multiplicadores por cantidad de minas
+MULTIPLICADORES = {3: 1.054, 5: 1.12, 10: 1.23, 15: 1.56, 24: 23.0}
 
+# Carpeta de imágenes
 IMG_DIR = "IMG"
+
 
 def cargar_imagen(nombre, size=None, fallback_color=(100, 100, 100)):
     ruta = os.path.join(IMG_DIR, nombre)
     if os.path.exists(ruta):
-        img = pygame.image.load(ruta).convert_alpha()
-        if size:
-            img = pygame.transform.smoothscale(img, size)
-        return img
-    surf = pygame.Surface(size if size else (50, 50))
+        try:
+            img = pygame.image.load(ruta).convert_alpha()
+            if size:
+                img = pygame.transform.smoothscale(img, size)
+            return img
+        except pygame.error:
+            pass
+    size_safe = size if size else (50, 50)
+    surf = pygame.Surface(size_safe, pygame.SRCALPHA)
     surf.fill(fallback_color)
     return surf
 
-# --- CARGAR IMÁGENES ---
+
 money_img = cargar_imagen("money.png", (TAM_CASILLA-20, TAM_CASILLA-20), (0, 200, 0))
 bomb_img = cargar_imagen("bomb.png", (TAM_CASILLA-20, TAM_CASILLA-20), (200, 0, 0))
-tile_img = cargar_imagen("tile.png", (TAM_CASILLA, TAM_CASILLA), (50, 50, 50))
+tile_img = cargar_imagen("tile.png", (TAM_CASILLA, TAM_CASILLA), (30, 30, 30))
+
+
+# --- Lista de montos posibles ---
+MONTOS_POSIBLES = [10, 20, 40, 60, 100, 200, 300, 400, 500, 1000, 2000, 5000, 7500, 10000]
+MINAS_OPCIONES = [3, 5, 10, 15, 24]
 
 
 class Juego:
@@ -61,137 +70,198 @@ class Juego:
 
     def reset(self):
         self.minas = 0
-        self.matriz_minas = []
-        self.revelado = [[False for _ in range(COLUMNAS)] for _ in range(FILAS)]
+        self.matriz_minas = [[False]*COLUMNAS for _ in range(FILAS)]
+        self.revelado = [[False]*COLUMNAS for _ in range(FILAS)]
         self.jugando = False
         self.multiplicador = 1.0
         self.banca = 500
         self.apuesta = 0
+        self.indice_apuesta = 0  # posición del monto actual en la lista
         self.dinero_actual = 0
-        self.input_apuesta = ""  # texto que escribe el jugador
-        self.explosiones = []  # animaciones activas
+        self.explosiones = []
+        self.msg = ""
+        self.msg_timer = 0
+        self.seleccion_minas = True
+        self.perdiendo = False
+        self.perdida_timer = 0
 
+    # --- Funciones del juego ---
     def elegir_minas(self, cantidad):
         self.minas = cantidad
-        posiciones = random.sample(range(FILAS * COLUMNAS), cantidad)
+        self.seleccion_minas = False
+
+    def iniciar_ronda(self):
+        monto = MONTOS_POSIBLES[self.indice_apuesta]
+        if monto > self.banca:
+            self.msg = "Saldo insuficiente"
+            self.msg_timer = 60
+            return
+
+        self.apuesta = monto
+        self.banca -= self.apuesta
+        if self.banca < 0:
+            self.banca = 0
+
+        posiciones = random.sample(range(FILAS * COLUMNAS), self.minas)
         self.matriz_minas = [[False for _ in range(COLUMNAS)] for _ in range(FILAS)]
         for pos in posiciones:
             f, c = divmod(pos, COLUMNAS)
             self.matriz_minas[f][c] = True
+
         self.jugando = True
         self.multiplicador = 1.0
         self.revelado = [[False for _ in range(COLUMNAS)] for _ in range(FILAS)]
-        self.dinero_actual = self.apuesta
+        self.dinero_actual = float(self.apuesta)
 
-    def click(self, x, y):
-        if not self.jugando:
+    def click_casilla(self, x, y):
+        if not self.jugando or self.perdiendo:
             return
-        fila = (y - OFFSET_Y) // TAM_CASILLA
-        col = x // TAM_CASILLA
+        fila = (y - OFFSET_Y) // (TAM_CASILLA + GAP)
+        col = x // (TAM_CASILLA + GAP)
         if 0 <= fila < FILAS and 0 <= col < COLUMNAS:
             if self.revelado[fila][col]:
                 return
             self.revelado[fila][col] = True
-            if self.matriz_minas[fila][col]:  # Mina
+            if self.matriz_minas[fila][col]:
                 self.dinero_actual = 0
+                cx = col * (TAM_CASILLA + GAP) + TAM_CASILLA//2
+                cy = fila * (TAM_CASILLA + GAP) + OFFSET_Y + TAM_CASILLA//2
+                self.explosiones.append({"x": cx, "y": cy, "r": 8, "max_r": 90, "alpha": 220})
+                self.revelar_todas_minas()
                 self.jugando = False
-                # Añadir animación
-                cx = col * TAM_CASILLA + TAM_CASILLA//2
-                cy = fila * TAM_CASILLA + OFFSET_Y + TAM_CASILLA//2
-                self.explosiones.append({"x": cx, "y": cy, "r": 10, "max_r": 80})
-            else:  # Acierto
-                self.multiplicador *= MULTIPLICADORES[self.minas]
+                self.perdiendo = True
+                self.perdida_timer = 90
+                if self.banca <= 0:
+                    pygame.quit()
+                    sys.exit()
+            else:
+                self.multiplicador *= MULTIPLICADORES.get(self.minas, 1.05)
                 self.dinero_actual *= self.multiplicador
+
+    def revelar_todas_minas(self):
+        for f in range(FILAS):
+            for c in range(COLUMNAS):
+                if self.matriz_minas[f][c]:
+                    self.revelado[f][c] = True
 
     def retirar(self):
         if self.jugando:
-            self.banca += self.dinero_actual
+            self.banca += int(self.dinero_actual)
             self.jugando = False
             self.dinero_actual = 0
+            self.apuesta = 0
+            self.seleccion_minas = True
 
-    def apostar(self):
-        if not self.jugando and self.input_apuesta.isdigit():
-            cantidad = int(self.input_apuesta)
-            if cantidad <= self.banca and cantidad > 0:
-                self.apuesta = cantidad
-                self.banca -= cantidad
-            self.input_apuesta = ""  # limpiar input
+    def cambiar_apuesta(self, direccion):
+        if self.jugando or self.seleccion_minas or self.perdiendo:
+            return
+        if direccion == "izq":
+            self.indice_apuesta = max(0, self.indice_apuesta - 1)
+        elif direccion == "der":
+            self.indice_apuesta = min(len(MONTOS_POSIBLES) - 1, self.indice_apuesta + 1)
+
+    def actualizar_perdida(self):
+        if self.perdiendo:
+            self.perdida_timer -= 1
+            if self.perdida_timer <= 0:
+                self.apuesta = 0
+                self.perdiendo = False
+                self.seleccion_minas = True
 
     def dibujar(self, ventana):
-        # Fondo degradado oscuro
-        for i in range(ALTO):
-            color = (i//10, i//15, i//12)
-            pygame.draw.line(ventana, color, (0, i), (ANCHO, i))
+        ventana.fill((10, 10, 10))
 
-        # Dinero
-        texto = fuente.render(f"Banca: ${self.banca:.2f}", True, CELESTE)
-        ventana.blit(texto, (20, 20))
-        texto2 = fuente.render(f"Apuesta: ${self.apuesta}", True, VERDE)
-        ventana.blit(texto2, (20, 60))
-        texto3 = fuente.render(f"Ganancia: ${self.dinero_actual:.2f}", True, ROJO)
-        ventana.blit(texto3, (20, 100))
+        # Textos
+        ventana.blit(fuente.render(f"Banca: ${self.banca}", True, CELESTE), (20, 18))
+        ventana.blit(fuente.render(f"Ganancia: ${int(self.dinero_actual)}", True, ACENTO), (20, 98))
 
-        # Input apuesta
-        if not self.jugando:
-            rect = pygame.Rect(300, 20, 200, 40)
-            pygame.draw.rect(ventana, (30, 30, 30), rect)
-            pygame.draw.rect(ventana, BLANCO, rect, 2)
-            txt = fuente.render(self.input_apuesta, True, BLANCO)
-            ventana.blit(txt, (rect.x + 10, rect.y + 5))
+        boton_rects = []
 
-            # Botón confirmar
-            btn = pygame.Rect(300, 70, 120, 30)
-            pygame.draw.rect(ventana, VERDE, btn)
-            txt = fuente_peque.render("CONFIRMAR", True, NEGRO)
-            ventana.blit(txt, (btn.x + 10, btn.y + 5))
+        # --- Selección de minas ---
+        if self.seleccion_minas:
+            for i, val in enumerate(MINAS_OPCIONES):
+                rect = pygame.Rect(20 + i*110, 140, 100, 40)
+                pygame.draw.rect(ventana, AZUL, rect, border_radius=6)
+                pygame.draw.rect(ventana, BLANCO, rect, 2, border_radius=6)
+                ventana.blit(fuente_peque.render(str(val), True, BLANCO), (rect.x + 36, rect.y + 8))
+                boton_rects.append(('minas', rect, val))
 
-        # Botones de minas
-        if not self.jugando and self.apuesta > 0:
-            opciones = [3, 5, 10, 15, 24]
-            for i, val in enumerate(opciones):
-                rect = pygame.Rect(20 + i * 110, 140, 100, 25)
-                pygame.draw.rect(ventana, (60, 60, 60), rect)
-                txt = fuente.render(str(val), True, BLANCO)
-                ventana.blit(txt, (rect.x + 30, rect.y))
+        # --- Selector de apuesta ---
+        elif not self.jugando and not self.perdiendo:
+            monto = MONTOS_POSIBLES[self.indice_apuesta]
 
-        # Botón retirar
-        if self.jugando:
-            rect = pygame.Rect(450, 120, 120, 30)
-            pygame.draw.rect(ventana, VERDE, rect)
-            txt = fuente.render("RETIRAR", True, NEGRO)
-            ventana.blit(txt, (rect.x + 10, rect.y + 2))
+            # Flechas
+            flecha_izq = pygame.Rect(180, 145, 40, 30)
+            flecha_der = pygame.Rect(380, 145, 40, 30)
+            pygame.draw.rect(ventana, VERDE, flecha_izq, border_radius=6)
+            pygame.draw.rect(ventana, VERDE, flecha_der, border_radius=6)
+            ventana.blit(fuente_peque.render("<", True, BLANCO), (flecha_izq.x + 13, flecha_izq.y + 5))
+            ventana.blit(fuente_peque.render(">", True, BLANCO), (flecha_der.x + 13, flecha_der.y + 5))
+            boton_rects.append(('flecha', flecha_izq, 'izq'))
+            boton_rects.append(('flecha', flecha_der, 'der'))
 
-        # Dibujar grilla
+            # Cuadro central del monto
+            rect_monto = pygame.Rect(230, 140, 140, 40)
+            pygame.draw.rect(ventana, (25,25,25), rect_monto, border_radius=6)
+            pygame.draw.rect(ventana, BLANCO, rect_monto, 2, border_radius=6)
+            ventana.blit(fuente_peque.render(f"${monto}", True, VERDE), (rect_monto.x + 35, rect_monto.y + 8))
+
+            # Botón de "Iniciar"
+            iniciar_rect = pygame.Rect(400, 200, 150, 40)
+            pygame.draw.rect(ventana, VERDE, iniciar_rect, border_radius=6)
+            pygame.draw.rect(ventana, BLANCO, iniciar_rect, 2, border_radius=6)
+            ventana.blit(fuente_peque.render("INICIAR", True, BLANCO), (iniciar_rect.x + 35, iniciar_rect.y + 8))
+            boton_rects.append(('iniciar', iniciar_rect, monto))
+
+        # Grilla
         mouse_x, mouse_y = pygame.mouse.get_pos()
         for f in range(FILAS):
             for c in range(COLUMNAS):
-                x = c * TAM_CASILLA
-                y = f * TAM_CASILLA + OFFSET_Y
+                x = c * (TAM_CASILLA + GAP)
+                y = f * (TAM_CASILLA + GAP) + OFFSET_Y
                 rect = pygame.Rect(x, y, TAM_CASILLA, TAM_CASILLA)
+                ventana.blit(tile_img, rect.topleft)
 
-                # hover efecto
-                if rect.collidepoint(mouse_x, mouse_y):
-                    ventana.blit(tile_img, rect.topleft)
+                if rect.collidepoint(mouse_x, mouse_y) and not self.revelado[f][c] and self.jugando:
                     s = pygame.Surface((TAM_CASILLA, TAM_CASILLA), pygame.SRCALPHA)
-                    s.fill((255, 255, 255, 50))
+                    s.fill((255, 255, 255, 30))
                     ventana.blit(s, rect.topleft)
-                else:
-                    ventana.blit(tile_img, rect.topleft)
 
                 if self.revelado[f][c]:
                     if self.matriz_minas[f][c]:
-                        ventana.blit(bomb_img, (x+10, y+10))
+                        ventana.blit(bomb_img, (x + 10, y + 10))
                     else:
-                        ventana.blit(money_img, (x+10, y+10))
+                        ventana.blit(money_img, (x + 10, y + 10))
 
-        # Dibujar animaciones de explosión
+        # Botón retirar
+        retirar_rect = pygame.Rect(480, 20, 100, 40)
+        if self.jugando:
+            pygame.draw.rect(ventana, (25,25,25), retirar_rect, border_radius=6)
+            pygame.draw.rect(ventana, VERDE, retirar_rect, 2, border_radius=6)
+            ventana.blit(fuente_peque.render("RETIRAR", True, BLANCO), (retirar_rect.x + 10, retirar_rect.y + 8))
+
+        # Explosiones
+        expl_to_keep = []
         for exp in self.explosiones:
-            pygame.draw.circle(ventana, ROJO, (exp["x"], exp["y"]), exp["r"])
-            pygame.draw.circle(ventana, (255, 150, 0), (exp["x"], exp["y"]), exp["r"]//2)
-            exp["r"] += 5
-        self.explosiones = [e for e in self.explosiones if e["r"] < e["max_r"]]
+            max_r = exp["max_r"]
+            surf = pygame.Surface((max_r*2,max_r*2), pygame.SRCALPHA)
+            a = max(0, exp["alpha"])
+            if exp["r"] < max_r:
+                pygame.draw.circle(surf, (255,80,0,int(a)), (max_r,max_r), int(exp["r"]))
+                pygame.draw.circle(surf, (255,170,0,int(max(0,a-80))), (max_r,max_r), int(max(0,exp["r"]//2)))
+            ventana.blit(surf, (exp["x"] - max_r, exp["y"] - max_r))
+            exp["r"] += 6
+            exp["alpha"] -= 12
+            expl_to_keep.append(exp)
+        self.explosiones = expl_to_keep
+
+        # Mensaje temporal
+        if self.msg_timer > 0 and self.msg:
+            ventana.blit(fuente_peque.render(self.msg, True, (255,220,120)), (20, 240))
+            self.msg_timer -= 1
 
         pygame.display.flip()
+        return boton_rects, retirar_rect
 
 
 def main():
@@ -203,37 +273,29 @@ def main():
             pygame.quit()
             sys.exit()
 
+        boton_rects, retirar_rect = juego.dibujar(VENTANA)
+        juego.actualizar_perdida()
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
-            if event.type == pygame.KEYDOWN and not juego.jugando:
-                if event.key == pygame.K_BACKSPACE:
-                    juego.input_apuesta = juego.input_apuesta[:-1]
-                elif event.unicode.isdigit():
-                    juego.input_apuesta += event.unicode
-
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = event.pos
-                if not juego.jugando:
-                    # Confirmar apuesta
-                    if 300 <= x <= 420 and 70 <= y <= 100:
-                        juego.apostar()
-                    # Botones minas
-                    if juego.apuesta > 0 and 140 <= y <= 165:
-                        opciones = [3, 5, 10, 15, 24]
-                        for i, val in enumerate(opciones):
-                            if 20 + i * 110 <= x <= 120 + i * 110:
-                                juego.elegir_minas(val)
+                for tipo, rect, val in boton_rects:
+                    if rect.collidepoint(x, y):
+                        if tipo == 'minas':
+                            juego.elegir_minas(val)
+                        elif tipo == 'flecha':
+                            juego.cambiar_apuesta(val)
+                        elif tipo == 'iniciar':
+                            juego.iniciar_ronda()
+                if retirar_rect and retirar_rect.collidepoint(x, y):
+                    juego.retirar()
                 else:
-                    # Retirar
-                    if 450 <= x <= 570 and 120 <= y <= 150:
-                        juego.retirar()
-                    else:
-                        juego.click(x, y)
+                    juego.click_casilla(x, y)
 
-        juego.dibujar(VENTANA)
         clock.tick(30)
 
 
