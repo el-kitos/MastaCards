@@ -25,6 +25,9 @@ pygame.display.set_caption("Baccarat")
 clock = pygame.time.Clock()
 clock.tick(60)
 
+card_images = {f"{rank}{suit}": render_card(f"{rank}{suit}") for suit in suits for rank in ranks}
+card_back = render_back_card()
+
 #Valores especiales de cartas
 def card_valuesBaccarat():
     for rank in ranks:
@@ -34,10 +37,20 @@ def card_valuesBaccarat():
             value = 1
         else:
             value = int(rank)
+            
 
 
 def mainNBaccarat():
-    pass
+    players = [
+        {"name": "Jugador 1", "money": 1000, "bet": 100},
+        {"name": "Jugador 2", "money": 1000, "bet": 100}
+    ]
+    stats = {"ganadas": 0, "perdidas": 0, "empatadas": 0}
+    current_player = 0
 
+    deck = create_deck()
+    player_hand, dealer_hand = [], []
+
+    
 
 
