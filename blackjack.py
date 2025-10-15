@@ -150,7 +150,7 @@ def mainBlackjack():
         game_over = False
         result = ""
         ronda_terminada = False
-
+        rect_negro = pygame.Rect(0, 0, WIDTH, 550)
         pedir_btn = pygame.Rect(50, 600, 180, 50)
         plantarse_btn = pygame.Rect(250, 600, 180, 50)
         apuesta_mas_btn = pygame.Rect(470, 600, 100, 50)
@@ -161,6 +161,7 @@ def mainBlackjack():
         while not ronda_terminada:
             screen.fill(GREEN_TABLE)
             pygame.draw.rect(screen, (20, 90, 20), (0, 550, WIDTH, 150))
+            pygame.draw.rect(screen, BLACK , rect_negro, width=10)
 
             draw_text(f"{player['name']} - Dinero: ${player['money']}", 20, 20)
             draw_text(f"Apuesta: ${player['bet']}", 20, 60)
