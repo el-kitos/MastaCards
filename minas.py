@@ -85,7 +85,7 @@ class Juego:
         self.perdiendo = False
         self.perdida_timer = 0
 
-    # --- Funciones del juego ---
+    # --- Funciones del juego --
     def elegir_minas(self, cantidad):
         self.minas = cantidad
         self.seleccion_minas = False
