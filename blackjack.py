@@ -87,7 +87,9 @@ def animate_card(card_surf, start_pos, end_pos, duration=300):
         screen.blit(card_surf, (x, y))
         pygame.display.flip()
         clock.tick(60)
-
+    return {"image": card_surf, "x": start_pos[0], "y": start_pos[1],
+        "end_x": end_pos[0], "end_y": end_pos[1] }
+    
 # Lógica del mazo
 def create_deck():
     deck = [f"{rank}{suit}" for suit in suits for rank in ranks]
