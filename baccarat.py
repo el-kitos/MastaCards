@@ -67,23 +67,10 @@ def mainBaccarat():
         for _ in range(2):
             card = deck.pop()
             player_hand.append(card)
-            if sound_card: sound_card.play()
-            animate_card(card_images[card], (ANCHO // 2, ALTO // 2), (100 + len(player_hand) * 70, 380))
-            animaciones.append(animate_card(card_images[card], (ANCHO // 2, ALTO // 2), (100 + len(player_hand) * 70, 380)))
-
-
             card_d = deck.pop()
             dealer_hand.append(card_d)
-            if sound_card: sound_card.play()
-            animate_card(card_images[card_d], (ANCHO // 2, ALTO // 2), (100 + len(dealer_hand) * 70, 100))
-            animaciones.append(animate_card(card_images[card_d], (ANCHO//2, ALTO//2), (100 + len(dealer_hand)*70, 100)))
-        
-        for anim in animaciones[:]:
-            terminado = anim.update() 
-        if terminado:
-            animaciones.remove(anim)
 
-        Eleccion = ""
+        eleccion = ""
         game_over = False
         result = ""
         ronda_terminada = False
@@ -104,9 +91,6 @@ def mainBaccarat():
 
             draw_text(f"{player['name']} - Dinero: ${player['money']}", 20, 20)
             draw_text(f"Apuesta: ${player['bet']}", 20, 60)
-
-            draw_hand(player_hand, 380)
-            draw_hand(dealer_hand, 100)
 
             draw_text(f"{player['name']}: {hand_valueBaccarat(player_hand)}", 100, 340)
             draw_text(f"Croupier: {hand_valueBaccarat(dealer_hand)}", 100, 200)
@@ -139,29 +123,45 @@ def mainBaccarat():
                             elif jugador_btn.collidepoint(event.pos):
                                 Eleccion = "Jugador"
                             elif banca_btn.collidepoint(event.pos):
-                                Eleccion = "Banca"
+                                Eleccion = "Banca"  
+
+                            for i in range(2):
+                                if sound_card: sound_card.play()
+                                animate_card(card_images[card], (ANCHO // 2, ALTO // 2), (100 + len(player_hand) * 70, 380))
+                                animaciones.append(animate_card(card_images[card], (ANCHO // 2, ALTO // 2), (100 + len(player_hand) * 70, 380)))
+                                if sound_card: sound_card.play()
+                                animate_card(card_images[card_d], (ANCHO // 2, ALTO // 2), (100 + len(dealer_hand) * 70, 100))
+                                animaciones.append(animate_card(card_images[card_d], (ANCHO//2, ALTO//2), (100 + len(dealer_hand)*70, 100)))
+
+                            for anim in animaciones[:]:
+                                terminado = anim.update() 
+                            if terminado:
+                                animaciones.remove(anim)
                             
+                            draw_hand(player_hand, 380)
+                            draw_hand(dealer_hand, 100)
+
                             p_val = hand_valueBaccarat(player_hand)
                             d_val = hand_valueBaccarat(dealer_hand)
                             
-                            if Eleccion == "Jugador" and p_val > d_val:
+                            if eleccion == "Jugador" and p_val > d_val:
                                 result = "Ganaste"
                                 player["money"] += player["bet"]
                                 stats["ganadas"] += 1
                                 if sound_win: sound_win.play()
-                            elif Eleccion == "Jugador" and p_val < d_val:
+                            elif eleccion == "Jugador" and p_val < d_val:
                                 result = "Pierdes."
                                 player["money"] -= player["bet"]
                                 stats["perdidas"] += 1
                                 if sound_lose: sound_lose.play()
-                            elif Eleccion == "Jugador" and p_val == d_val:
+                            elif eleccion == "Jugador" and p_val == d_val:
                                 result = "Empate."
-                            elif Eleccion == "Banca" and d_val > p_val:
+                            elif eleccion == "Banca" and d_val > p_val:
                                 result = "Ganaste"
                                 player["money"] += player["bet"]
                                 stats["ganadas"] += 1
                                 if sound_win: sound_win.play()
-                            elif Eleccion == "Banca" and d_val < p_val:
+                            elif eleccion == "Banca" and d_val < p_val:
                                 result = "Pierdes."
                                 player["money"] -= player["bet"]
                                 stats["perdidas"] += 1
@@ -169,7 +169,7 @@ def mainBaccarat():
                             else:
                                 result = "Empate."
                             game_over = True
-                            Eleccion = ""
+                            eleccion = ""
                         elif game_over and otra_ronda_btn.collidepoint(event.pos):
                             player_hand.clear()
                             dealer_hand.clear()
