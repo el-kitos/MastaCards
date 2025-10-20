@@ -1,7 +1,7 @@
 import pygame
 import random
 import sys
-from blackjack import draw_button,draw_text,render_card,render_back_card,animate_card,create_deck,draw_hand
+from Funciones_Poker import draw_button,draw_text,render_card,render_back_card,animate_card,create_deck,draw_hand
 #Cartas
 suits = ['♠', '♥', '♦', '♣']
 ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
@@ -24,14 +24,16 @@ try:
 except:
     sound_card = sound_win = sound_lose = sound_draw = None
 
+
 pygame.init()
 ANCHO, ALTO = 1152, 700
 screen = pygame.display.set_mode((ANCHO, ALTO))
 pygame.display.set_caption("Baccarat")
 clock = pygame.time.Clock()
+font = pygame.font.SysFont("arial", 28, bold=True)
 
 
-card_images = {f"{rank}{suit}": render_card(f"{rank}{suit}") for suit in suits for rank in ranks}
+card_images = {f"{rank}{suit}": render_card(f"{rank}{suit}",font) for suit in suits for rank in ranks}
 card_back = render_back_card()
 
 #Valores especiales de cartas
@@ -84,16 +86,16 @@ def mainBaccarat():
         salir_btn = pygame.Rect(700, 600, 180, 50)
         otra_ronda_btn = pygame.Rect(400, 400, 200, 50)
 
+        screen.fill(GREEN_TABLE)
         while not ronda_terminada:
-            screen.fill(GREEN_TABLE)
             pygame.draw.rect(screen, (20, 90, 20), (0, 550, ANCHO, 150))
             pygame.draw.rect(screen, BLACK , rect_negro, width=10)
 
-            draw_text(f"{player['name']} - Dinero: ${player['money']}", 20, 20)
-            draw_text(f"Apuesta: ${player['bet']}", 20, 60)
+            draw_text(f"{player['name']} - Dinero: ${player['money']}", 20, 20, screen)
+            draw_text(f"Apuesta: ${player['bet']}", 20, 60, screen)
 
-            draw_text(f"{player['name']}: {hand_valueBaccarat(player_hand)}", 100, 340)
-            draw_text(f"Croupier: {hand_valueBaccarat(dealer_hand)}", 100, 200)
+            draw_text(f"{player['name']}: {hand_valueBaccarat(player_hand)}", 100, 340, screen)
+            draw_text(f"Croupier: {hand_valueBaccarat(dealer_hand)}", 100, 200, screen)
 
             if game_over:
                     color = GREEN if "Ganaste" in result else RED if "Pierdes" in result else BLUE
@@ -102,11 +104,11 @@ def mainBaccarat():
                     draw_text(result, ANCHO // 2, 320, color, center=True, big=True)
                     draw_button(otra_ronda_btn, "Otra ronda")
 
-            draw_button(jugador_btn, "Jugador", not game_over)
-            draw_button(banca_btn, "Banca", not game_over)
-            draw_button(apuesta_mas_btn, "+50", not game_over and player["bet"] + 50 <= player["money"])
-            draw_button(apuesta_menos_btn, "-50", not game_over and player["bet"] - 50 >= 50)
-            draw_button(salir_btn, "Salir", True)
+            draw_button(jugador_btn, "Jugador", font, screen, not game_over)
+            draw_button(banca_btn, "Banca", font, screen, not game_over)
+            draw_button(apuesta_mas_btn, "+50", font, screen, not game_over and player["bet"] + 50 <= player["money"])
+            draw_button(apuesta_menos_btn, "-50", font, screen, not game_over and player["bet"] - 50 >= 50)
+            draw_button(salir_btn, "Salir", font, screen, True,)
 
             for event in pygame.event.get():
                     if event.type == pygame.QUIT:
@@ -125,13 +127,13 @@ def mainBaccarat():
                             elif banca_btn.collidepoint(event.pos):
                                 Eleccion = "Banca"  
 
-                            for i in range(2):
-                                if sound_card: sound_card.play()
-                                animate_card(card_images[card], (ANCHO // 2, ALTO // 2), (100 + len(player_hand) * 70, 380))
-                                animaciones.append(animate_card(card_images[card], (ANCHO // 2, ALTO // 2), (100 + len(player_hand) * 70, 380)))
-                                if sound_card: sound_card.play()
-                                animate_card(card_images[card_d], (ANCHO // 2, ALTO // 2), (100 + len(dealer_hand) * 70, 100))
-                                animaciones.append(animate_card(card_images[card_d], (ANCHO//2, ALTO//2), (100 + len(dealer_hand)*70, 100)))
+                        for i in range(2):
+                            if sound_card: sound_card.play()
+                            animate_card(card_images[card], (ANCHO // 2, ALTO // 2), (100 + len(player_hand) * 70, 380))
+                            animaciones.append(animate_card(card_images[card], (ANCHO // 2, ALTO // 2), (100 + len(player_hand) * 70, 380)))
+                            if sound_card: sound_card.play()
+                            animate_card(card_images[card_d], (ANCHO // 2, ALTO // 2), (100 + len(dealer_hand) * 70, 100))
+                            animaciones.append(animate_card(card_images[card_d], (ANCHO//2, ALTO//2), (100 + len(dealer_hand)*70, 100)))
 
                             for anim in animaciones[:]:
                                 terminado = anim.update() 
@@ -170,7 +172,8 @@ def mainBaccarat():
                                 result = "Empate."
                             game_over = True
                             eleccion = ""
-                        elif game_over and otra_ronda_btn.collidepoint(event.pos):
+
+                        if game_over and otra_ronda_btn.collidepoint(event.pos):
                             player_hand.clear()
                             dealer_hand.clear()
                             ronda_terminada = True
