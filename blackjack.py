@@ -62,17 +62,18 @@ def mainBlackjack():
             card = deck.pop()
             player_hand.append(card)
             if sound_card: sound_card.play()
-            animate_card(card_images[card], (WIDTH // 2, HEIGHT // 2), (100 + len(player_hand) * 70, 380))
+            animate_card(card_images[card], (WIDTH // 2, HEIGHT // 2), (100 + len(player_hand) * 70, 380),screen, clock,)
 
             card_d = deck.pop()
             dealer_hand.append(card_d)
             if sound_card: sound_card.play()
-            animate_card(card_images[card_d], (WIDTH // 2, HEIGHT // 2), (100 + len(dealer_hand) * 70, 100))
+            animate_card(card_images[card_d],(WIDTH // 2, HEIGHT // 2), (100 + len(dealer_hand) * 70, 100),screen, clock,)
 
         stand = False
         game_over = False
         result = ""
         ronda_terminada = False
+
         rect_negro = pygame.Rect(0, 0, WIDTH, 550)
         pedir_btn = pygame.Rect(50, 600, 180, 50)
         plantarse_btn = pygame.Rect(250, 600, 180, 50)
@@ -89,11 +90,11 @@ def mainBlackjack():
             draw_text(f"{player['name']} - Dinero: ${player['money']}", 20, 20, screen)
             draw_text(f"Apuesta: ${player['bet']}", 20, 60, screen)
 
-            draw_hand(player_hand, 380)
+            draw_hand(player_hand,380,card_back, card_images, screen)
             if stand or game_over:
-                draw_hand(dealer_hand, 100)
+                draw_hand(dealer_hand,100, card_back, card_images, screen,)
             else:
-                draw_hand(dealer_hand, 100, hide_first=True)
+                draw_hand(dealer_hand, 100,card_back, card_images, screen, hide_first=True)
 
             draw_text(f"{player['name']}: {hand_value(player_hand)}", 100, 340, screen)
             if stand or game_over:
@@ -103,8 +104,8 @@ def mainBlackjack():
                 color = GREEN if "Ganaste" in result else RED if "Pierdes" in result else BLUE
                 pygame.draw.rect(screen, BLACK, (280, 260, 440, 120), border_radius=15)
                 pygame.draw.rect(screen, WHITE, (280, 260, 440, 120), 4, border_radius=15)
-                draw_text(result, WIDTH // 2, 320, color, center=True, big=True)
-                draw_button(otra_ronda_btn, "Otra ronda")
+                draw_text(result, WIDTH // 2, 320, screen, color, center=True, big=True)
+                draw_button(otra_ronda_btn,"Otra ronda", font, screen, )
 
             # Botones
             draw_button(pedir_btn, "Pedir Carta", font, screen, not game_over,)
@@ -131,7 +132,7 @@ def mainBlackjack():
                             card = deck.pop()
                             player_hand.append(card)
                             if sound_card: sound_card.play()
-                            animate_card(card_images[card], (WIDTH // 2, HEIGHT // 2), (100 + len(player_hand) * 70, 380))
+                            animate_card(card_images[card], (WIDTH // 2, HEIGHT // 2), (100 + len(player_hand) * 70, 380),screen, clock)
                             if hand_value(player_hand) > 21:
                                 result = "¡Te pasaste! Pierdes."
                                 player["money"] -= player["bet"]
@@ -144,7 +145,7 @@ def mainBlackjack():
                                 card = deck.pop()
                                 dealer_hand.append(card)
                                 if sound_card: sound_card.play()
-                                animate_card(card_images[card], (WIDTH // 2, HEIGHT // 2), (100 + len(dealer_hand) * 70, 100))
+                                animate_card(card_images[card], (WIDTH // 2, HEIGHT // 2), (100 + len(dealer_hand) * 70, 100),screen, clock)
 
                             p_val = hand_value(player_hand)
                             d_val = hand_value(dealer_hand)
