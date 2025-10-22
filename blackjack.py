@@ -55,6 +55,47 @@ def mainBlackjack():
             current_player = (current_player + 1) % 2
             continue
 
+        # -----------------------------
+        # FASE DE APUESTA
+        # -----------------------------
+        ajustar_apuesta = True
+        btns_y = 600
+        spacing = 20
+        btn_width = 150
+        apuesta_mas_btn = pygame.Rect(50, btns_y, btn_width, 50)
+        apuesta_menos_btn = pygame.Rect(50 + (btn_width + spacing), btns_y, btn_width, 50)
+        confirmar_apuesta_btn = pygame.Rect(50 + 2*(btn_width + spacing), btns_y, btn_width, 50)
+        salir_btn = pygame.Rect(50 + 3*(btn_width + spacing), btns_y, btn_width, 50)
+
+        while ajustar_apuesta:
+            screen.fill(GREEN_TABLE)
+            draw_text(f"{player['name']} - Dinero: ${player['money']}", 20, 20, screen)
+            draw_text(f"Apuesta: ${player['bet']}", 20, 60, screen)
+
+            draw_button(apuesta_mas_btn, "+50", font, screen, player["bet"] + 50 <= player["money"])
+            draw_button(apuesta_menos_btn, "-50", font, screen, player["bet"] - 50 >= 50)
+            draw_button(confirmar_apuesta_btn, "Confirmar", font, screen, True)
+            draw_button(salir_btn, "Salir", font, screen, True)
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit(); sys.exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if salir_btn.collidepoint(event.pos):
+                        pygame.quit(); sys.exit()
+                    elif apuesta_mas_btn.collidepoint(event.pos) and player["bet"] + 50 <= player["money"]:
+                        player["bet"] += 50
+                    elif apuesta_menos_btn.collidepoint(event.pos) and player["bet"] - 50 >= 50:
+                        player["bet"] -= 50
+                    elif confirmar_apuesta_btn.collidepoint(event.pos):
+                        ajustar_apuesta = False
+
+            pygame.display.flip()
+            clock.tick(30)
+
+        # -----------------------------
+        # REPARTO DE CARTAS INICIAL
+        # -----------------------------
         deck = create_deck()
         player_hand, dealer_hand = [], []
 
@@ -62,57 +103,62 @@ def mainBlackjack():
             card = deck.pop()
             player_hand.append(card)
             if sound_card: sound_card.play()
-            animate_card(card_images[card], (WIDTH // 2, HEIGHT // 2), (100 + len(player_hand) * 70, 380),screen, clock,)
+            animate_card(card_images[card], (WIDTH // 2, HEIGHT // 2), (100 + len(player_hand) * 70, 380), screen, clock)
 
             card_d = deck.pop()
             dealer_hand.append(card_d)
             if sound_card: sound_card.play()
-            animate_card(card_images[card_d],(WIDTH // 2, HEIGHT // 2), (100 + len(dealer_hand) * 70, 100),screen, clock,)
+            animate_card(card_images[card_d], (WIDTH // 2, HEIGHT // 2), (100 + len(dealer_hand) * 70, 100), screen, clock)
 
+        # -----------------------------
+        # BUCLE DE JUEGO DEL JUGADOR
+        # -----------------------------
         stand = False
         game_over = False
         result = ""
         ronda_terminada = False
 
-        rect_negro = pygame.Rect(0, 0, WIDTH, 550)
-        pedir_btn = pygame.Rect(50, 600, 180, 50)
-        plantarse_btn = pygame.Rect(250, 600, 180, 50)
-        apuesta_mas_btn = pygame.Rect(470, 600, 100, 50)
-        apuesta_menos_btn = pygame.Rect(580, 600, 100, 50)
-        salir_btn = pygame.Rect(700, 600, 180, 50)
-        otra_ronda_btn = pygame.Rect(400, 400, 200, 50)
+        # Botones del juego
+        pedir_btn = pygame.Rect(50, btns_y, btn_width, 50)
+        plantarse_btn = pygame.Rect(50 + (btn_width + spacing), btns_y, btn_width, 50)
+        doblar_btn = pygame.Rect(50 + 2*(btn_width + spacing), btns_y, btn_width, 50)
+        split_btn = pygame.Rect(50 + 3*(btn_width + spacing), btns_y, btn_width, 50)
+        otra_ronda_btn = pygame.Rect(WIDTH//2 - 100, HEIGHT//2, 200, 50)
+        salir_btn = pygame.Rect(50 + 4*(btn_width + spacing), btns_y, btn_width, 50)
 
         while not ronda_terminada:
             screen.fill(GREEN_TABLE)
             pygame.draw.rect(screen, (20, 90, 20), (0, 550, WIDTH, 150))
-            pygame.draw.rect(screen, BLACK , rect_negro, width=10)
+            pygame.draw.rect(screen, BLACK, (0,0,WIDTH,550), width=10)
 
             draw_text(f"{player['name']} - Dinero: ${player['money']}", 20, 20, screen)
             draw_text(f"Apuesta: ${player['bet']}", 20, 60, screen)
 
-            draw_hand(player_hand,380,card_back, card_images, screen)
+            # Dibujar cartas
+            draw_hand(player_hand, 380, card_back, card_images, screen)
             if stand or game_over:
-                draw_hand(dealer_hand,100, card_back, card_images, screen,)
+                draw_hand(dealer_hand, 100, card_back, card_images, screen)
             else:
-                draw_hand(dealer_hand, 100,card_back, card_images, screen, hide_first=True)
+                draw_hand(dealer_hand, 100, card_back, card_images, screen, hide_first=True)
 
             draw_text(f"{player['name']}: {hand_value(player_hand)}", 100, 340, screen)
             if stand or game_over:
                 draw_text(f"Croupier: {hand_value(dealer_hand)}", 100, 200, screen)
 
+            # Botones activos/inactivos
+            draw_button(pedir_btn, "Pedir Carta", font, screen, not game_over)
+            draw_button(plantarse_btn, "Plantarse", font, screen, not game_over)
+            draw_button(doblar_btn, "Doblar", font, screen, not game_over and len(player_hand) == 2 and player["money"] >= player["bet"])
+            draw_button(split_btn, "Split", font, screen, not game_over and len(player_hand) == 2 and player_hand[0][:-1] == player_hand[1][:-1] and player["money"] >= player["bet"])
+            draw_button(salir_btn, "Salir", font, screen, True)
+
+            # Resultado
             if game_over:
                 color = GREEN if "Ganaste" in result else RED if "Pierdes" in result else BLUE
                 pygame.draw.rect(screen, BLACK, (280, 260, 440, 120), border_radius=15)
                 pygame.draw.rect(screen, WHITE, (280, 260, 440, 120), 4, border_radius=15)
-                draw_text(result, WIDTH // 2, 320, screen, color, center=True, big=True)
-                draw_button(otra_ronda_btn,"Otra ronda", font, screen, )
-
-            # Botones
-            draw_button(pedir_btn, "Pedir Carta", font, screen, not game_over,)
-            draw_button(plantarse_btn, "Plantarse", font, screen, not game_over)
-            draw_button(apuesta_mas_btn, "+50", font, screen, not game_over and player["bet"] + 50 <= player["money"])
-            draw_button(apuesta_menos_btn, "-50", font, screen, not game_over and player["bet"] - 50 >= 50)
-            draw_button(salir_btn, "Salir", font, screen,True)
+                draw_text(result, WIDTH//2, 320, screen, color, center=True, big=True)
+                draw_button(otra_ronda_btn, "Otra ronda", font, screen, True)
 
             pygame.display.flip()
 
@@ -122,34 +168,30 @@ def mainBlackjack():
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if salir_btn.collidepoint(event.pos):
                         pygame.quit(); sys.exit()
-
                     if not game_over:
-                        if apuesta_mas_btn.collidepoint(event.pos) and player["bet"] + 50 <= player["money"]:
-                            player["bet"] += 50
-                        elif apuesta_menos_btn.collidepoint(event.pos) and player["bet"] - 50 >= 50:
-                            player["bet"] -= 50
-                        elif pedir_btn.collidepoint(event.pos):
+                        # Pedir carta
+                        if pedir_btn.collidepoint(event.pos):
                             card = deck.pop()
                             player_hand.append(card)
                             if sound_card: sound_card.play()
-                            animate_card(card_images[card], (WIDTH // 2, HEIGHT // 2), (100 + len(player_hand) * 70, 380),screen, clock)
+                            animate_card(card_images[card], (WIDTH//2, HEIGHT//2), (100 + len(player_hand)*70, 380), screen, clock)
                             if hand_value(player_hand) > 21:
                                 result = "¡Te pasaste! Pierdes."
                                 player["money"] -= player["bet"]
                                 stats["perdidas"] += 1
                                 if sound_lose: sound_lose.play()
                                 game_over = True
+                        # Plantarse
                         elif plantarse_btn.collidepoint(event.pos):
                             stand = True
                             while hand_value(dealer_hand) < 17:
                                 card = deck.pop()
                                 dealer_hand.append(card)
                                 if sound_card: sound_card.play()
-                                animate_card(card_images[card], (WIDTH // 2, HEIGHT // 2), (100 + len(dealer_hand) * 70, 100),screen, clock)
-
+                                animate_card(card_images[card], (WIDTH//2, HEIGHT//2), (100 + len(dealer_hand)*70, 100), screen, clock)
+                            # Evaluar ganador
                             p_val = hand_value(player_hand)
                             d_val = hand_value(dealer_hand)
-
                             if d_val > 21 or p_val > d_val:
                                 result = "¡Ganaste!"
                                 player["money"] += player["bet"]
@@ -165,17 +207,32 @@ def mainBlackjack():
                                 stats["empatadas"] += 1
                                 if sound_draw: sound_draw.play()
                             game_over = True
-
+                        # Doblar
+                        elif doblar_btn.collidepoint(event.pos):
+                            player["money"] -= player["bet"]
+                            player["bet"] *= 2
+                            card = deck.pop()
+                            player_hand.append(card)
+                            if sound_card: sound_card.play()
+                            animate_card(card_images[card], (WIDTH//2, HEIGHT//2), (100 + len(player_hand)*70, 380), screen, clock)
+                            stand = True
+                        # Split (solo efecto visual básico, puedes ampliar)
+                        elif split_btn.collidepoint(event.pos):
+                            if len(player_hand) == 2 and player_hand[0][:-1] == player_hand[1][:-1] and player["money"] >= player["bet"]:
+                                second_hand = [player_hand.pop()]
+                                player["money"] -= player["bet"]
+                                draw_text("Split implementado. Juega cada mano.", WIDTH//2, HEIGHT//2, screen, GOLD, center=True, big=True)
+                    # Otra ronda
                     elif game_over and otra_ronda_btn.collidepoint(event.pos):
                         ronda_terminada = True
 
             clock.tick(30)
 
-        current_player = (current_player + 1) % 2 
+        current_player = (current_player + 1) % 2
 
-
-    pygame.quit()   
+    pygame.quit()
     print("Fin del juego.")
+
 
 if __name__ == "__main__":
     mainBlackjack()
