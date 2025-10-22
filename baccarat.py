@@ -1,6 +1,7 @@
 import pygame
 import random
 import sys
+import time
 from Funciones_Poker import draw_button,draw_text,render_card,render_back_card,animate_card,create_deck,draw_hand
 #Cartas
 suits = ['♠', '♥', '♦', '♣']
@@ -33,8 +34,65 @@ clock = pygame.time.Clock()
 font = pygame.font.SysFont("arial", 28, bold=True)
 
 
-card_images = {f"{rank}{suit}": render_card(f"{rank}{suit}",font) for suit in suits for rank in ranks}
-card_back = render_back_card()
+
+# === Pantalla de carga estilo casino ===
+loading_font = pygame.font.SysFont("arial", 40, bold=True)
+#7 mensajes de carga
+mensajes = ["Preparando la mesa", "Esperando a los crupiers", "Barajando cartas", "Posicionando mazo", "Limpiando la mesa","Preparando fichas","Por favor espere" ]
+
+card_images = {}
+
+# Preparar lista de todas las cartas
+mazo = [f"{rank}{suit}" for suit in suits for rank in ranks]
+
+# Variables de animación
+i = 0
+mensaje_index = 0
+puntos_animados = 0
+clock = pygame.time.Clock()
+
+while i < len(mazo):
+    # Manejar eventos para que la ventana no se congele
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            sys.exit()
+
+    # Fondo con degradado
+    for y in range(ALTO):
+        color = (
+            int(30 + (y / ALTO) * 50),
+            int(100 + (y / ALTO) * 60),
+            int(30 + (y / ALTO) * 30)
+        )
+        pygame.draw.line(screen, color, (0, y), (ANCHO, y))
+
+    pygame.draw.rect(screen, (255, 215, 0), (50, 50, ANCHO - 100, ALTO - 150), 6, border_radius=30)
+
+    # Mensaje y puntos animados
+    mensaje = mensajes[mensaje_index % len(mensajes)]
+    puntos = "." * ((puntos_animados // 10) % 4)
+    text = loading_font.render(mensaje + puntos, True, WHITE)
+    screen.blit(text, (ANCHO // 2 - text.get_width() // 2, ALTO // 2 - text.get_height() // 2))
+
+    # Barra de progreso
+    progreso = i / len(mazo)
+    pygame.draw.rect(screen, (60, 60, 60), (200, ALTO - 100, ANCHO - 400, 25), border_radius=10)
+    pygame.draw.rect(screen, (255, 215, 0), (200, ALTO - 100, int((ANCHO - 400) * progreso), 25), border_radius=10)
+
+    pygame.display.flip()
+
+    # Renderizar una carta
+    card_images[mazo[i]] = render_card(mazo[i], font)
+    i += 1
+
+    # Actualizar animación de puntos y mensaje cada pocos frames
+    puntos_animados += 1
+    if puntos_animados % 20 == 0:
+        mensaje_index += 1
+    pygame.time.delay(100)  # Simular tiempo de carga
+    clock.tick(60)  # limitar a 60 fps
+
 
 #Valores especiales de cartas
 def card_valuesBaccarat():
