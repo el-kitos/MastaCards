@@ -187,11 +187,11 @@ def mainBaccarat():
 
                         for i in range(2):
                             if sound_card: sound_card.play()
-                            animate_card(card_images[card], (ANCHO // 2, ALTO // 2), (100 + len(player_hand) * 70, 380))
-                            animaciones.append(animate_card(card_images[card], (ANCHO // 2, ALTO // 2), (100 + len(player_hand) * 70, 380)))
+                            animate_card(card_images[card], (ANCHO // 2, ALTO // 2), (100 + len(player_hand) * 70, 380),screen, clock)
+                            animaciones.append(animate_card(card_images[card], (ANCHO // 2, ALTO // 2), (100 + len(player_hand) * 70, 380)),screen, clock)
                             if sound_card: sound_card.play()
-                            animate_card(card_images[card_d], (ANCHO // 2, ALTO // 2), (100 + len(dealer_hand) * 70, 100))
-                            animaciones.append(animate_card(card_images[card_d], (ANCHO//2, ALTO//2), (100 + len(dealer_hand)*70, 100)))
+                            animate_card(card_images[card_d], (ANCHO // 2, ALTO // 2), (100 + len(dealer_hand) * 70, 100),screen, clock)
+                            animaciones.append(animate_card(card_images[card_d], (ANCHO//2, ALTO//2), (100 + len(dealer_hand)*70, 100)),screen, clock)
 
                             for anim in animaciones[:]:
                                 terminado = anim.update() 
