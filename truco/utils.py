@@ -23,7 +23,7 @@ def load_card_image(card: Card, size: Tuple[int,int]) -> pygame.Surface:
             return pygame.transform.smoothscale(img, size)
         except Exception:
             pass
-    # fallback: dibujar rectángulo con texto
+
     surface = pygame.Surface(size)
     surface.fill((255,255,255))
     pygame.draw.rect(surface, (0,0,0), surface.get_rect(), 2)

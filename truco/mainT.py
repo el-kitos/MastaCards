@@ -2,6 +2,7 @@
 Archivo de entrada: inicializa Pygame, muestra el menu y ejecuta las pantallas.
 """
 import pygame
+
 from truco.menu import Menu
 from truco.juego import Game
 from truco.data_manager import load_history
