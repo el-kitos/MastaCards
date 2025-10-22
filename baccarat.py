@@ -39,25 +39,20 @@ font = pygame.font.SysFont("arial", 28, bold=True)
 loading_font = pygame.font.SysFont("arial", 40, bold=True)
 #7 mensajes de carga
 mensajes = ["Preparando la mesa", "Esperando a los crupiers", "Barajando cartas", "Posicionando mazo", "Limpiando la mesa","Preparando fichas","Por favor espere" ]
-
 card_images = {}
-
 # Preparar lista de todas las cartas
 mazo = [f"{rank}{suit}" for suit in suits for rank in ranks]
-
 # Variables de animación
 i = 0
 mensaje_index = 0
 puntos_animados = 0
 clock = pygame.time.Clock()
-
 while i < len(mazo):
     # Manejar eventos para que la ventana no se congele
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
-
     # Fondo con degradado
     for y in range(ALTO):
         color = (
@@ -79,9 +74,8 @@ while i < len(mazo):
     progreso = i / len(mazo)
     pygame.draw.rect(screen, (60, 60, 60), (200, ALTO - 100, ANCHO - 400, 25), border_radius=10)
     pygame.draw.rect(screen, (255, 215, 0), (200, ALTO - 100, int((ANCHO - 400) * progreso), 25), border_radius=10)
-
     pygame.display.flip()
-
+    
     # Renderizar una carta
     card_images[mazo[i]] = render_card(mazo[i], font)
     i += 1
