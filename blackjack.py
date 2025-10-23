@@ -56,9 +56,10 @@ def mainBlackjack():
             continue
 
         # -----------------------------
-        # FASE DE APUESTA
+        # FASE DE APUESTA (se salta al inicio para iniciar animación directamente)
         # -----------------------------
-        ajustar_apuesta = True
+        # Ajustar apuesta está desactivado para empezar directo con el reparto
+        ajustar_apuesta = False
         btns_y = 600
         spacing = 20
         btn_width = 150
@@ -98,17 +99,21 @@ def mainBlackjack():
         # -----------------------------
         deck = create_deck()
         player_hand, dealer_hand = [], []
+        animaciones = []
+        pending_dealer_resolution = False
 
         for _ in range(2):
             card = deck.pop()
             player_hand.append(card)
             if sound_card: sound_card.play()
-            animate_card(card_images[card], (WIDTH // 2, HEIGHT // 2), (100 + len(player_hand) * 70, 380), screen, clock)
+            anim = animate_card(card_images[card], (WIDTH // 2, HEIGHT // 2), (100 + len(player_hand) * 70, 380), card_key=card)
+            animaciones.append(anim)
 
             card_d = deck.pop()
             dealer_hand.append(card_d)
             if sound_card: sound_card.play()
-            animate_card(card_images[card_d], (WIDTH // 2, HEIGHT // 2), (100 + len(dealer_hand) * 70, 100), screen, clock)
+            anim_d = animate_card(card_images[card_d], (WIDTH // 2, HEIGHT // 2), (100 + len(dealer_hand) * 70, 100), card_key=card_d)
+            animaciones.append(anim_d)
 
         # -----------------------------
         # BUCLE DE JUEGO DEL JUGADOR
@@ -160,7 +165,6 @@ def mainBlackjack():
                 draw_text(result, WIDTH//2, 320, screen, color, center=True, big=True)
                 draw_button(otra_ronda_btn, "Otra ronda", font, screen, True)
 
-            pygame.display.flip()
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -168,54 +172,61 @@ def mainBlackjack():
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if salir_btn.collidepoint(event.pos):
                         pygame.quit(); sys.exit()
+                    # si hay animaciones en curso, ignorar clicks excepto salir
+                    if animaciones:
+                        continue
                     if not game_over:
                         # Pedir carta
                         if pedir_btn.collidepoint(event.pos):
                             card = deck.pop()
                             player_hand.append(card)
                             if sound_card: sound_card.play()
-                            animate_card(card_images[card], (WIDTH//2, HEIGHT//2), (100 + len(player_hand)*70, 380), screen, clock)
+                            anim = animate_card(card_images[card], (WIDTH//2, HEIGHT//2), (100 + len(player_hand)*70, 380), card_key=card)
+                            animaciones.append(anim)
                             if hand_value(player_hand) > 21:
                                 result = "¡Te pasaste! Pierdes."
                                 player["money"] -= player["bet"]
                                 stats["perdidas"] += 1
                                 if sound_lose: sound_lose.play()
                                 game_over = True
+                                ronda_terminada = True
                         # Plantarse
                         elif plantarse_btn.collidepoint(event.pos):
                             stand = True
+                            # Encolar cartas del crupier y sus animaciones; la evaluación se hará cuando terminen las animaciones
                             while hand_value(dealer_hand) < 17:
                                 card = deck.pop()
                                 dealer_hand.append(card)
                                 if sound_card: sound_card.play()
-                                animate_card(card_images[card], (WIDTH//2, HEIGHT//2), (100 + len(dealer_hand)*70, 100), screen, clock)
-                            # Evaluar ganador
-                            p_val = hand_value(player_hand)
-                            d_val = hand_value(dealer_hand)
-                            if d_val > 21 or p_val > d_val:
-                                result = "¡Ganaste!"
-                                player["money"] += player["bet"]
-                                stats["ganadas"] += 1
-                                if sound_win: sound_win.play()
-                            elif p_val < d_val:
-                                result = "Pierdes."
-                                player["money"] -= player["bet"]
-                                stats["perdidas"] += 1
-                                if sound_lose: sound_lose.play()
-                            else:
-                                result = "Empate."
-                                stats["empatadas"] += 1
-                                if sound_draw: sound_draw.play()
-                            game_over = True
+                                anim = animate_card(card_images[card], (WIDTH//2, HEIGHT//2), (100 + len(dealer_hand)*70, 100), card_key=card)
+                                animaciones.append(anim)
+                            pending_dealer_resolution = True
                         # Doblar
                         elif doblar_btn.collidepoint(event.pos):
-                            player["money"] -= player["bet"]
-                            player["bet"] *= 2
-                            card = deck.pop()
-                            player_hand.append(card)
-                            if sound_card: sound_card.play()
-                            animate_card(card_images[card], (WIDTH//2, HEIGHT//2), (100 + len(player_hand)*70, 380), screen, clock)
-                            stand = True
+                            # Doblar: duplicar la apuesta, pedir exactamente una carta y plantarse.
+                            # No reiniciamos la mano; si se pasa, se aplica la pérdida.
+                            if player["money"] >= player["bet"]:
+                                # sacar una carta del mazo
+                                card = deck.pop()
+                                player_hand.append(card)
+                                if sound_card: sound_card.play()
+                                # duplicar la apuesta (no restamos ahora; se aplica al resolver)
+                                player["bet"] *= 2
+                                # encolar animación de la carta recibida
+                                anim = animate_card(card_images[card], (WIDTH//2, HEIGHT//2), (100 + len(player_hand)*70, 380), card_key=card)
+                                animaciones.append(anim)
+                                # el jugador se planta automáticamente tras doblar
+                                stand = True
+                                # si al doblar se pasa, terminar la ronda
+                                if hand_value(player_hand) > 21:
+                                    result = "¡Te pasaste! Pierdes."
+                                    # al perder se resta la apuesta actual (ya duplicada)
+                                    player["money"] -= player["bet"]
+                                    stats["perdidas"] += 1
+                                    if sound_lose: sound_lose.play()
+                                    # Mostrar el resultado, pero no reiniciar la mano automáticamente;
+                                    # el jugador deberá pulsar 'Otra ronda' para avanzar.
+                                    game_over = True
                         # Split (solo efecto visual básico, puedes ampliar)
                         elif split_btn.collidepoint(event.pos):
                             if len(player_hand) == 2 and player_hand[0][:-1] == player_hand[1][:-1] and player["money"] >= player["bet"]:
@@ -225,7 +236,37 @@ def mainBlackjack():
                     # Otra ronda
                     elif game_over and otra_ronda_btn.collidepoint(event.pos):
                         ronda_terminada = True
+            # Actualizar animaciones (no bloqueante) y dibujarlas
+            for anim in animaciones[:]:
+                finished = anim.update(screen)
+                if finished:
+                    animaciones.remove(anim)
+            for anim in animaciones:
+                screen.blit(anim.card_surf, (anim.x, anim.y))
 
+            # Si las animaciones terminaron y estamos esperando resolver la mano del crupier
+            if not animaciones and pending_dealer_resolution:
+                # Evaluar ganador ahora que el crupier terminó
+                p_val = hand_value(player_hand)
+                d_val = hand_value(dealer_hand)
+                if d_val > 21 or p_val > d_val:
+                    result = "¡Ganaste!"
+                    player["money"] += player["bet"]
+                    stats["ganadas"] += 1
+                    if sound_win: sound_win.play()
+                elif p_val < d_val:
+                    result = "Pierdes."
+                    player["money"] -= player["bet"]
+                    stats["perdidas"] += 1
+                    if sound_lose: sound_lose.play()
+                else:
+                    result = "Empate."
+                    stats["empatadas"] += 1
+                    if sound_draw: sound_draw.play()
+                game_over = True
+                pending_dealer_resolution = False
+            # Finalmente, actualizar la pantalla después de dibujar animaciones
+            pygame.display.flip()
             clock.tick(30)
 
         current_player = (current_player + 1) % 2

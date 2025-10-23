@@ -46,13 +46,14 @@ mazo = [f"{rank}{suit}" for suit in suits for rank in ranks]
 i = 0
 mensaje_index = 0
 puntos_animados = 0
-clock = pygame.time.Clock()
-while i < len(mazo):
-    # Manejar eventos para que la ventana no se congele
+loading = True
+
+while loading:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
+
     # Fondo con degradado
     for y in range(ALTO):
         color = (
@@ -64,7 +65,7 @@ while i < len(mazo):
 
     pygame.draw.rect(screen, (255, 215, 0), (50, 50, ANCHO - 100, ALTO - 150), 6, border_radius=30)
 
-    # Mensaje y puntos animados
+    # Mensaje animado
     mensaje = mensajes[mensaje_index % len(mensajes)]
     puntos = "." * ((puntos_animados // 10) % 4)
     text = loading_font.render(mensaje + puntos, True, WHITE)
@@ -74,21 +75,24 @@ while i < len(mazo):
     progreso = i / len(mazo)
     pygame.draw.rect(screen, (60, 60, 60), (200, ALTO - 100, ANCHO - 400, 25), border_radius=10)
     pygame.draw.rect(screen, (255, 215, 0), (200, ALTO - 100, int((ANCHO - 400) * progreso), 25), border_radius=10)
-    pygame.display.flip()
-    
-    # Renderizar una carta
-    card_images[mazo[i]] = render_card(mazo[i], font)
-    i += 1
 
-    # Actualizar animación de puntos y mensaje cada pocos frames
+    # Renderizar solo 1 carta por frame
+    if i < len(mazo):
+        card_images[mazo[i]] = render_card(mazo[i], font)
+        i += 1
+    else:
+        loading = False  # carga completa
+
+    # Actualizar animación puntos y mensaje
     puntos_animados += 1
     if puntos_animados % 20 == 0:
         mensaje_index += 1
-    pygame.time.delay(100)  # Simular tiempo de carga
-    clock.tick(60)  # limitar a 60 fps
+
+    pygame.display.flip()
+    clock.tick(60)
 
 
-#Valores especiales de cartas
+# Valores especiales de cartas
 def card_valuesBaccarat():
     return {
         "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9,
@@ -117,6 +121,9 @@ def mainBaccarat():
 
         deck = create_deck()
         player_hand, dealer_hand = [], []
+        
+        card_images = {f"{rank}{suit}": render_card(f"{rank}{suit}",font) for suit in suits for rank in ranks}
+        card_back = render_back_card()
 
         for _ in range(2):
             card = deck.pop()
@@ -139,97 +146,142 @@ def mainBaccarat():
         otra_ronda_btn = pygame.Rect(400, 400, 200, 50)
 
         screen.fill(GREEN_TABLE)
+        # Indicador para asegurarse de iniciar las animaciones de reparto solo una vez por ronda
+        deal_started = False
         while not ronda_terminada:
-            pygame.draw.rect(screen, (20, 90, 20), (0, 550, ANCHO, 150))
-            pygame.draw.rect(screen, BLACK , rect_negro, width=10)
-
-            draw_text(f"{player['name']} - Dinero: ${player['money']}", 20, 20, screen)
-            draw_text(f"Apuesta: ${player['bet']}", 20, 60, screen)
-
-            draw_text(f"{player['name']}: {hand_valueBaccarat(player_hand)}", 100, 340, screen)
-            draw_text(f"Croupier: {hand_valueBaccarat(dealer_hand)}", 100, 200, screen)
-
-            if game_over:
-                    color = GREEN if "Ganaste" in result else RED if "Pierdes" in result else BLUE
-                    pygame.draw.rect(screen, BLACK, (280, 260, 440, 120), border_radius=15)
-                    pygame.draw.rect(screen, WHITE, (280, 260, 440, 120), 4, border_radius=15)
-                    draw_text(result, ANCHO // 2, 320, color, center=True, big=True)
-                    draw_button(otra_ronda_btn, "Otra ronda")
-
-            draw_button(jugador_btn, "Jugador", font, screen, not game_over)
-            draw_button(banca_btn, "Banca", font, screen, not game_over)
-            draw_button(apuesta_mas_btn, "+50", font, screen, not game_over and player["bet"] + 50 <= player["money"])
-            draw_button(apuesta_menos_btn, "-50", font, screen, not game_over and player["bet"] - 50 >= 50)
-            draw_button(salir_btn, "Salir", font, screen, True,)
-
             for event in pygame.event.get():
-                    if event.type == pygame.QUIT:
+                if event.type == pygame.QUIT:
+                    pygame.quit(); sys.exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if salir_btn.collidepoint(event.pos):
                         pygame.quit(); sys.exit()
-                    elif event.type == pygame.MOUSEBUTTONDOWN:
-                        if salir_btn.collidepoint(event.pos):
-                            pygame.quit(); sys.exit()
 
-                        if not game_over:
+                    # Si hay animaciones en curso, bloquear entradas de apuesta/elección
+                    if animaciones:
+                        # mientras se animan permitir solo 'salir'; ignorar otros clics
+                        continue
+
+                    if not game_over:
+                        # allow changing bet only before choosing
+                        if eleccion == "":
                             if apuesta_mas_btn.collidepoint(event.pos) and player["bet"] + 50 <= player["money"]:
                                 player["bet"] += 50
                             elif apuesta_menos_btn.collidepoint(event.pos) and player["bet"] - 50 >= 50:
                                 player["bet"] -= 50
-                            elif jugador_btn.collidepoint(event.pos):
-                                Eleccion = "Jugador"
+                        # choosing player or banca triggers the deal (only if not chosen yet)
+                        if eleccion == "":
+                            if jugador_btn.collidepoint(event.pos):
+                                eleccion = "Jugador"
                             elif banca_btn.collidepoint(event.pos):
-                                Eleccion = "Banca"  
+                                eleccion = "Banca"
 
-                        for i in range(2):
-                            if sound_card: sound_card.play()
-                            animate_card(card_images[card], (ANCHO // 2, ALTO // 2), (100 + len(player_hand) * 70, 380),screen, clock)
-                            animaciones.append(animate_card(card_images[card], (ANCHO // 2, ALTO // 2), (100 + len(player_hand) * 70, 380)),screen, clock)
-                            if sound_card: sound_card.play()
-                            animate_card(card_images[card_d], (ANCHO // 2, ALTO // 2), (100 + len(dealer_hand) * 70, 100),screen, clock)
-                            animaciones.append(animate_card(card_images[card_d], (ANCHO//2, ALTO//2), (100 + len(dealer_hand)*70, 100)),screen, clock)
+                    if game_over and otra_ronda_btn.collidepoint(event.pos):
+                        player_hand.clear()
+                        dealer_hand.clear()
+                        ronda_terminada = True
 
-                            for anim in animaciones[:]:
-                                terminado = anim.update() 
-                            if terminado:
-                                animaciones.remove(anim)
-                            
-                            draw_hand(player_hand, 380)
-                            draw_hand(dealer_hand, 100)
+            # Iniciar el reparto inicial solo después de que el jugador haya elegido (eleccion != "")
+            if not deal_started and eleccion != "":
+                # animar las cartas más recientemente añadidas (segunda carta de cada mano)
+                p_card = player_hand[-1]
+                d_card = dealer_hand[-1]
+                if sound_card: sound_card.play()
+                animaciones.append(animate_card(card_images[p_card], (ANCHO // 2, ALTO // 2), (100 + (len(player_hand)-1) * 70, 380), card_key=p_card))
+                if sound_card: sound_card.play()
+                animaciones.append(animate_card(card_images[d_card], (ANCHO // 2, ALTO // 2), (100 + (len(dealer_hand)-1) * 70, 100), card_key=d_card))
+                deal_started = True
 
-                            p_val = hand_valueBaccarat(player_hand)
-                            d_val = hand_valueBaccarat(dealer_hand)
-                            
-                            if eleccion == "Jugador" and p_val > d_val:
-                                result = "Ganaste"
-                                player["money"] += player["bet"]
-                                stats["ganadas"] += 1
-                                if sound_win: sound_win.play()
-                            elif eleccion == "Jugador" and p_val < d_val:
-                                result = "Pierdes."
-                                player["money"] -= player["bet"]
-                                stats["perdidas"] += 1
-                                if sound_lose: sound_lose.play()
-                            elif eleccion == "Jugador" and p_val == d_val:
-                                result = "Empate."
-                            elif eleccion == "Banca" and d_val > p_val:
-                                result = "Ganaste"
-                                player["money"] += player["bet"]
-                                stats["ganadas"] += 1
-                                if sound_win: sound_win.play()
-                            elif eleccion == "Banca" and d_val < p_val:
-                                result = "Pierdes."
-                                player["money"] -= player["bet"]
-                                stats["perdidas"] += 1
-                                if sound_lose: sound_lose.play()
-                            else:
-                                result = "Empate."
-                            game_over = True
-                            eleccion = ""
+            # Limpiar la pantalla y dibujar la mesa y la interfaz
+            screen.fill(GREEN_TABLE)
+            pygame.draw.rect(screen, (20, 90, 20), (0, 550, ANCHO, 150))
+            pygame.draw.rect(screen, BLACK , rect_negro, width=10)
+            draw_text(f"{player['name']} - Dinero: ${player['money']}", 20, 20, screen)
+            draw_text(f"Apuesta: ${player['bet']}", 20, 60, screen)
 
-                        if game_over and otra_ronda_btn.collidepoint(event.pos):
-                            player_hand.clear()
-                            dealer_hand.clear()
-                            ronda_terminada = True
+            # Mostrar las manos y valores solo después de que el jugador haya elegido
+            if eleccion != "" or game_over:
+                draw_text(f"{player['name']}: {hand_valueBaccarat(player_hand)}", 100, 340, screen)
+                draw_text(f"Croupier: {hand_valueBaccarat(dealer_hand)}", 100, 200, screen)
 
+                # dibujar las manos (ocultar cualquier carta que se esté animando
+                # dibujando el dorso en esa posición)
+                animated_keys = {anim.card_key for anim in animaciones if getattr(anim, 'card_key', None)}
+                for i, card in enumerate(player_hand):
+                    if card in animated_keys:
+                        screen.blit(card_back, (100 + i * 70, 380))
+                    else:
+                        screen.blit(card_images[card], (100 + i * 70, 380))
+                for i, card in enumerate(dealer_hand):
+                    if card in animated_keys:
+                        screen.blit(card_back, (100 + i * 70, 100))
+                    else:
+                        screen.blit(card_images[card], (100 + i * 70, 100))
+            else:
+                # Before choice, hide hands and values (only show labels)
+                draw_text(f"{player['name']}", 100, 340, screen)
+
+            # Actualizar animaciones (no bloqueante)
+            for anim in animaciones[:]:
+                finished = anim.update(screen)
+                if finished:
+                    animaciones.remove(anim)
+            # dibujar fotogramas de animación por encima de las manos
+            for anim in animaciones:
+                # anim.card_surf is the image to draw; anim.x/anim.y are current coords
+                screen.blit(anim.card_surf, (anim.x, anim.y))
+
+            # Después de que las animaciones terminan, evaluar el resultado si el jugador ya eligió
+            if not animaciones and not game_over and eleccion != "":
+                p_val = hand_valueBaccarat(player_hand)
+                d_val = hand_valueBaccarat(dealer_hand)
+                if eleccion == "Jugador":
+                    if p_val > d_val:
+                        result = "Ganaste"
+                        player["money"] += player["bet"]
+                        stats["ganadas"] += 1
+                        if sound_win: sound_win.play()
+                    elif p_val < d_val:
+                        result = "Pierdes."
+                        player["money"] -= player["bet"]
+                        stats["perdidas"] += 1
+                        if sound_lose: sound_lose.play()
+                    else:
+                        result = "Empate."
+                elif eleccion == "Banca":
+                    if d_val > p_val:
+                        result = "Ganaste"
+                        player["money"] += player["bet"]
+                        stats["ganadas"] += 1
+                        if sound_win: sound_win.play()
+                    elif d_val < p_val:
+                        result = "Pierdes."
+                        player["money"] -= player["bet"]
+                        stats["perdidas"] += 1
+                        if sound_lose: sound_lose.play()
+                    else:
+                        result = "Empate."
+                else:
+                    result = "Empate."
+                game_over = True
+                eleccion = ""
+
+            # dibujar botones y posible ventana de resultado
+            if game_over:
+                color = GREEN if "Ganaste" in result else RED if "Pierdes" in result else BLUE
+                pygame.draw.rect(screen, BLACK, (280, 260, 440, 120), border_radius=15)
+                pygame.draw.rect(screen, WHITE, (280, 260, 440, 120), 4, border_radius=15)
+                draw_text(result, ANCHO // 2, 320, screen, color, center=True, big=True)
+                draw_button(otra_ronda_btn,"Otra ronda", font, screen )
+
+            # Si hay animaciones activas, desactivar botones de apuesta/elección hasta que terminen
+            interactive = not animaciones and not game_over
+            draw_button(jugador_btn, "Jugador", font, screen, interactive)
+            draw_button(banca_btn, "Banca", font, screen, interactive)
+            draw_button(apuesta_mas_btn, "+50", font, screen, interactive and player["bet"] + 50 <= player["money"])
+            draw_button(apuesta_menos_btn, "-50", font, screen, interactive and player["bet"] - 50 >= 50)
+            draw_button(salir_btn, "Salir", font, screen, True,)
+
+            pygame.display.flip()
             clock.tick(60)
 
         current_player = (current_player + 1) % 2 

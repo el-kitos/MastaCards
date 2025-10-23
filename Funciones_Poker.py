@@ -5,9 +5,6 @@ suits = ['♠', '♥', '♦', '♣']
 ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
 
 
-
-
-
 # Colores
 GREEN_TABLE = (39, 119, 20)
 WHITE = (255, 255, 255)
@@ -28,8 +25,15 @@ def draw_button(rect, text, font, screen,active=True):
     screen.blit(label, label_rect)
 
 def draw_text(text, x, y, screen, color=WHITE, center=False, big=False):
-    fnt = pygame.font.SysFont("arial", 34 if big else 28, bold=True)
-    img = fnt.render(text, True, color)
+    # use cached fonts to avoid recreating them each frame
+    global _FONT_REG, _FONT_BIG
+    try:
+        _FONT_REG
+    except NameError:
+        _FONT_REG = pygame.font.SysFont("arial", 28, bold=True)
+        _FONT_BIG = pygame.font.SysFont("arial", 34, bold=True)
+    fnt = _FONT_BIG if big else _FONT_REG
+    img = fnt.render(str(text), True, color)
     rect = img.get_rect()
     if center:
         rect.center = (x, y)
@@ -59,18 +63,37 @@ def render_back_card():
     return card
 
 
-def animate_card(card_surf, start_pos, end_pos, screen, clock, duration=300):
-    start_time = pygame.time.get_ticks()
-    while pygame.time.get_ticks() - start_time < duration:
-        t = (pygame.time.get_ticks() - start_time) / duration
-        x = start_pos[0] + (end_pos[0] - start_pos[0]) * t
-        y = start_pos[1] + (end_pos[1] - start_pos[1]) * t
-        screen.fill(GREEN_TABLE)
-        screen.blit(card_surf, (x, y))
-        pygame.display.flip()
-        clock.tick(60)
-    return {"image": card_surf, "x": start_pos[0], "y": start_pos[1],
-        "end_x": end_pos[0], "end_y": end_pos[1] }
+class Animation:
+    """Animación no bloqueante simple para mover una superficie de un punto a otro."""
+    def __init__(self, card_surf, start_pos, end_pos, duration=300):
+        self.card_surf = card_surf
+        self.start_x, self.start_y = start_pos
+        self.end_x, self.end_y = end_pos
+        self.duration = duration
+        self.start_time = pygame.time.get_ticks()
+        self.finished = False
+        # optional metadata: card key (string) and current position
+        self.card_key = None
+        self.x = self.start_x
+        self.y = self.start_y
+
+    def update(self, screen):
+        now = pygame.time.get_ticks()
+        elapsed = now - self.start_time
+        t = min(1.0, elapsed / self.duration)
+        x = self.start_x + (self.end_x - self.start_x) * t
+        y = self.start_y + (self.end_y - self.start_y) * t
+        self.x = x
+        self.y = y
+        if t >= 1.0:
+            self.finished = True
+        return self.finished
+
+
+def animate_card(card_surf, start_pos, end_pos, card_key=None, screen=None, clock=None, duration=300):
+    anim = Animation(card_surf, start_pos, end_pos, duration)
+    anim.card_key = card_key
+    return anim
     
 # Lógica del mazo
 def create_deck():
