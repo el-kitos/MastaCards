@@ -59,7 +59,7 @@ def mainBlackjack():
         # FASE DE APUESTA (se salta al inicio para iniciar animación directamente)
         # -----------------------------
         # Ajustar apuesta está desactivado para empezar directo con el reparto
-        ajustar_apuesta = False
+        ajustar_apuesta = True
         btns_y = 600
         spacing = 20
         btn_width = 150
@@ -122,6 +122,7 @@ def mainBlackjack():
         game_over = False
         result = ""
         ronda_terminada = False
+        doblar_contador = 0
 
         # Botones del juego
         pedir_btn = pygame.Rect(50, btns_y, btn_width, 50)
@@ -153,7 +154,7 @@ def mainBlackjack():
             # Botones activos/inactivos
             draw_button(pedir_btn, "Pedir Carta", font, screen, not game_over)
             draw_button(plantarse_btn, "Plantarse", font, screen, not game_over)
-            draw_button(doblar_btn, "Doblar", font, screen, not game_over and len(player_hand) == 2 and player["money"] >= player["bet"])
+            draw_button(doblar_btn, "Doblar", font, screen, not game_over and len(player_hand) == 2 and player["money"] >= player["bet"] and doblar_contador < 1)
             draw_button(split_btn, "Split", font, screen, not game_over and len(player_hand) == 2 and player_hand[0][:-1] == player_hand[1][:-1] and player["money"] >= player["bet"])
             draw_button(salir_btn, "Salir", font, screen, True)
 
@@ -189,7 +190,7 @@ def mainBlackjack():
                                 stats["perdidas"] += 1
                                 if sound_lose: sound_lose.play()
                                 game_over = True
-                                ronda_terminada = True
+                                pygame.time.delay(1000)
                         # Plantarse
                         elif plantarse_btn.collidepoint(event.pos):
                             stand = True
@@ -205,7 +206,8 @@ def mainBlackjack():
                         elif doblar_btn.collidepoint(event.pos):
                             # Doblar: duplicar la apuesta, pedir exactamente una carta y plantarse.
                             # No reiniciamos la mano; si se pasa, se aplica la pérdida.
-                            if player["money"] >= player["bet"]:
+                            if player["money"] >= player["bet"] and doblar_contador < 1:
+                                doblar_contador += 1
                                 # sacar una carta del mazo
                                 card = deck.pop()
                                 player_hand.append(card)
@@ -217,7 +219,7 @@ def mainBlackjack():
                                 animaciones.append(anim)
                                 # el jugador se planta automáticamente tras doblar
                                 stand = True
-                                # si al doblar se pasa, terminar la ronda
+                                # si al doblar se pasa, terminar la mano inmediatamente
                                 if hand_value(player_hand) > 21:
                                     result = "¡Te pasaste! Pierdes."
                                     # al perder se resta la apuesta actual (ya duplicada)
@@ -233,6 +235,7 @@ def mainBlackjack():
                                 second_hand = [player_hand.pop()]
                                 player["money"] -= player["bet"]
                                 draw_text("Split implementado. Juega cada mano.", WIDTH//2, HEIGHT//2, screen, GOLD, center=True, big=True)
+
                     # Otra ronda
                     elif game_over and otra_ronda_btn.collidepoint(event.pos):
                         ronda_terminada = True
