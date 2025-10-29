@@ -28,5 +28,17 @@
     "player_score": 4,
     "cpu_score": 0,
     "timestamp": 1760310422.1565897
+  },
+  {
+    "hand_winner": "CPU",
+    "player_score": 0,
+    "cpu_score": 1,
+    "timestamp": 1761748388.9666374
+  },
+  {
+    "hand_winner": "CPU",
+    "player_score": 1,
+    "cpu_score": 1,
+    "timestamp": 1761748390.273944
   }
 ]
