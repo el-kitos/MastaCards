@@ -212,7 +212,7 @@ def main():
             eleccion = menu_play()
             if eleccion == "BLACKJACK":
                 mainBlackjack()
-            elif eleccion == "🇦🇷TRUCO🇦🇷":
+            elif eleccion == "TRUCO":
                 mainTruco()
             elif eleccion == "MINAS":
                 mainMinas()
