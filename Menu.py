@@ -1,5 +1,6 @@
 from blackjack import mainBlackjack
 from truco.mainT import mainTruco
+from minas import mainMinas
 import pygame
 import sys
 import os
@@ -214,7 +215,7 @@ def main():
             elif eleccion == "🇦🇷TRUCO🇦🇷":
                 mainTruco()
             elif eleccion == "💣MINAS💣":
-                pantalla_proximamente()
+                mainMinas()
             elif eleccion == "BACK":
                 continue
 
