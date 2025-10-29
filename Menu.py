@@ -101,7 +101,7 @@ def menu_principal():
 
 
 def menu_play():
-    opciones = ["♦️♣️BLACKJACK♥️♠️", "🇦🇷TRUCO🇦🇷", "💣MINAS💣", "BACK"]
+    opciones = ["BLACKJACK", "TRUCO", "MINAS", "BACK"]
     seleccion = 0
     fondo = cargar_imagen("mastafamilyfriendly.png")
     fuente = pygame.font.Font(None, 72)
@@ -210,11 +210,11 @@ def main():
             pygame.quit(); sys.exit()
         elif destino == "play":
             eleccion = menu_play()
-            if eleccion == "♦️♣️BLACKJACK♥️♠️":
+            if eleccion == "BLACKJACK":
                 mainBlackjack()
             elif eleccion == "🇦🇷TRUCO🇦🇷":
                 mainTruco()
-            elif eleccion == "💣MINAS💣":
+            elif eleccion == "MINAS":
                 mainMinas()
             elif eleccion == "BACK":
                 continue
