@@ -130,8 +130,8 @@ def mainBlackjack():
         doblar_btn = pygame.Rect(65 + 2*(btn_width + spacing), btns_y, btn_width, 50)
         split_btn = pygame.Rect(55 + 3*(btn_width + spacing), btns_y, btn_width, 50)
         otra_ronda_btn = pygame.Rect(WIDTH//2 - 100, HEIGHT//2 + 30, 200, 50)
+        siguienteMano_btn = pygame.Rect(WIDTH//2 - 100, HEIGHT//2 + 30, 200, 50)  # Misma posición que otra_ronda_btn
         salir_btn = pygame.Rect(50 + 4*(btn_width + spacing), btns_y, btn_width, 50)
-        siguienteMano_btn = pygame.Rect(50 + 4*(btn_width + spacing), btns_y, 200, 50)
 
 
         # Agregar variables para control de split
@@ -200,18 +200,22 @@ def mainBlackjack():
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if salir_btn.collidepoint(event.pos):
                         pygame.quit(); sys.exit()
-                    # Si hay game over, solo procesar el botón de otra ronda
+                    # Si hay game over, manejar los botones de siguiente mano y otra ronda
                     if game_over:
-                        if otra_ronda_btn.collidepoint(event.pos):
-                            if is_split and current_split_hand == 0:
-                                # Cambiar a la segunda mano
-                                current_split_hand += 1
-                                player_hand = split_hands[current_split_hand]
-                                stand = False
-                                game_over = False
-                                result = ""
-                            else:
-                                ronda_terminada = True
+                        if is_split and current_split_hand == 0 and siguienteMano_btn.collidepoint(event.pos):
+                            # Cambiar a la segunda mano
+                            current_split_hand += 1
+                            player_hand = split_hands[current_split_hand]
+                            stand = False
+                            game_over = False
+                            result = ""
+                            # Resetear la mano del crupier para la segunda mano
+                            dealer_hand = dealer_hand[:2]  # Mantener solo las dos primeras cartas
+                            pending_dealer_resolution = False
+                            continue
+                        elif otra_ronda_btn.collidepoint(event.pos):
+                            ronda_terminada = True
+                            continue
                         continue
 
                     # Pedir carta
