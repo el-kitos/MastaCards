@@ -1,5 +1,6 @@
 """
 Módulo principal del juego: lógica de turno, UI de juego, manejo de Truco y Envido (simplificados).
+Modificado para: truco inicia en 2 puntos, manejo correcto de rechazo/aceptación y guardado claro del ganador de la mano.
 """
 
 import pygame
@@ -31,7 +32,7 @@ class Game:
         self.cpu_score = 0
         self.round_wins = {self.player_name:0, "CPU":0}
         self.table_cards = []  # pares (player_card, cpu_card) por mano
-        self.truco_value = 1  # puntos en juego para la mano (puede subir a 2 si se canta Truco y se acepta)
+        self.truco_value = 2  # <-- Cambiado: Truco vale 2 puntos por defecto
         self.history = []
         self.turn = "player" if random.random() < 0.5 else "cpu"
         self.game_over = False
@@ -100,13 +101,14 @@ class Game:
                             self.game_over = self.check_game_over()
                             return
                         else:
-                            # aumenta valor de la mano
-                            self.truco_value = 2
+                            # si acepta, dejamos truco_value como está (ya vale 2)
+                            # Si en el futuro querés manejar Retruco/ValeCuatro, acá se puede elevar.
+                            pass
                     if event.key == pygame.K_e:
                         # cantar envido antes de jugar la carta (si no se jugaron cartas)
                         accepted = self.handle_envido_call(caller="player")
                         if not accepted:
-                            # rechazado -> otorgar 1 punto al que canta? aquí otorgamos 1 al que canta.
+                            # rechazado -> otorgar 1 punto al que canta (comportamiento simplificado)
                             self.player_score += 1
                             self.game_over = self.check_game_over()
                             return
@@ -118,21 +120,26 @@ class Game:
                     rects = self.get_player_card_rects()
                     for idx, r in enumerate(rects):
                         if r.collidepoint((mx,my)):
-                            clicked_card = self.player_hand.pop(idx)
-                            waiting = False
+                            if idx < len(self.player_hand):
+                                clicked_card = self.player_hand.pop(idx)
+                                waiting = False
                             break
             if self.vs_ai and not waiting and clicked_card:
                 # jugar carta y luego CPU responde
                 self.table_cards.append((clicked_card, None))
                 # CPU selecciona carta
                 cpu_choice = choose_card_ai(self.cpu_hand, [c for c,_ in self.table_cards], len(self.table_cards))
-                self.cpu_hand.remove(cpu_choice)
+                try:
+                    self.cpu_hand.remove(cpu_choice)
+                except ValueError:
+                    # defensiva
+                    if cpu_choice in self.cpu_hand:
+                        self.cpu_hand.remove(cpu_choice)
                 self.table_cards[-1] = (clicked_card, cpu_choice)
                 self.resolve_trick()
                 return
             elif not self.vs_ai and not waiting and clicked_card:
                 # en versión local multijugador deberías gestionar turnos de otro jugador (no implementado)
-                # para ahora asumimos vs CPU
                 pass
             pygame.display.flip()
             self.clock.tick(30)
@@ -148,7 +155,10 @@ class Game:
             self.cpu_hand.remove(cpu_card)
         except ValueError:
             # defensiva
-            cpu_card = self.cpu_hand.pop(0)
+            if self.cpu_hand:
+                cpu_card = self.cpu_hand.pop(0)
+            else:
+                return
         # si es turno cpu y vs jugador, el jugador debe responder: esperar click
         self.table_cards.append((None, cpu_card))
         # ahora esperar a que jugador responda eligiendo carta
@@ -164,9 +174,10 @@ class Game:
                     rects = self.get_player_card_rects()
                     for idx, r in enumerate(rects):
                         if r.collidepoint((mx,my)):
-                            player_card = self.player_hand.pop(idx)
-                            self.table_cards[-1] = (player_card, cpu_card)
-                            waiting = False
+                            if idx < len(self.player_hand):
+                                player_card = self.player_hand.pop(idx)
+                                self.table_cards[-1] = (player_card, cpu_card)
+                                waiting = False
                             break
                 if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                     return "menu"
@@ -194,13 +205,17 @@ class Game:
             self.round_wins[winner] = self.round_wins.get(winner,0) + 1
         # verificar si alguien ganó dos rondas
         if self.round_wins[self.player_name] == 2 or self.round_wins["CPU"] == 2:
+            # determinar ganador de la mano
             if self.round_wins[self.player_name] > self.round_wins["CPU"]:
                 self.player_score += self.truco_value
+                hand_winner = self.player_name
             else:
                 self.cpu_score += self.truco_value
-            # guardar en historial local de la mano
+                hand_winner = "CPU"
+
+            # guardar en historial local de la mano (guardamos el ganador de la mano)
             save_history({
-                "hand_winner": self.player_name if self.player_score>self.cpu_score else "CPU",
+                "hand_winner": hand_winner,
                 "player_score": self.player_score,
                 "cpu_score": self.cpu_score,
                 "timestamp": time.time()
@@ -220,26 +235,35 @@ class Game:
                     self.cpu_hand = self.deck.deal(3)
                 self.round_wins = {self.player_name:0, "CPU":0}
                 self.table_cards = []
-                self.truco_value = 1
+                self.truco_value = 2  # reset al valor base (2)
                 self.turn = "player" if random.random() < 0.5 else "cpu"
 
     def handle_truco_call(self, caller="player") -> bool:
         """
         Caller canta Truco. Retorna True si el otro acepta, False si rechaza.
         IA responde con decide_accept_truco.
+        En caso de rechazo se asignan los puntos al que cantó.
         """
         if caller == "player":
             # preguntar al CPU
             if self.vs_ai:
-                accept = decide_accept_truco()
-                return accept
+                accept = decide_accept_truco(self.cpu_hand)
+                if not accept:
+                    # CPU rechaza -> jugador gana los puntos en juego (truco_value)
+                    return False
+                return True
             else:
                 # para multijugador local: aceptar con tecla A o rechazar R (no implementado UI)
                 return True
         else:
             # CPU canta: el jugador recibe prompt sencillo
-            # Mostramos un mensaje y espera Y/N
-            return self.prompt_yes_no("CPU canta Truco. ¿Aceptas? (Y/N)")
+            accepted = self.prompt_yes_no("CPU canta Truco. ¿Aceptas? (Y/N)")
+            if not accepted:
+                # jugador rechaza -> CPU gana truco_value puntos
+                self.cpu_score += self.truco_value
+                self.game_over = self.check_game_over()
+                return False
+            return True
 
     def handle_envido_call(self, caller="player") -> bool:
         """
@@ -251,7 +275,7 @@ class Game:
                 accept = decide_accept_envido(self.cpu_hand)
                 if not accept:
                     return False
-                # si acepta, comparar envidos
+                # si acepta, comparar envidos (puntos simplificados: 2 al ganador)
                 p_en = calculate_envido(self.player_hand)
                 c_en = calculate_envido(self.cpu_hand)
                 if p_en > c_en:
