@@ -7,7 +7,7 @@
   },
   {
     "hand_winner": "Jugador",
-    "player_score": 5,      
+    "player_score": 5,
     "cpu_score": 2,
     "timestamp": 1759922311.9580286
   },
@@ -22,5 +22,11 @@
     "player_score": 6,
     "cpu_score": 0,
     "timestamp": 1759926330.1092474
+  },
+  {
+    "hand_winner": "Jugador",
+    "player_score": 4,
+    "cpu_score": 0,
+    "timestamp": 1760310422.1565897
   }
 ]
