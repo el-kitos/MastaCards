@@ -280,8 +280,7 @@ def mainBlackjack():
                                 card = deck.pop()
                                 hand.append(card)
                                 if sound_card: sound_card.play()
-                                anim = animate_card(card_images[card], (WIDTH//2, HEIGHT//2), 
-                                                 (100 + len(hand)*70, 380), card_key=card)
+                                anim = animate_card(card_images[card], (WIDTH//2, HEIGHT//2), (100 + len(hand)*70, 380), card_key=card)
                                 animaciones.append(anim)
                             
                             player["money"] -= player["bet"]  # Descontar la apuesta adicional
