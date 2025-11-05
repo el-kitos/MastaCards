@@ -26,14 +26,13 @@ def mainTruco():
     while True:
         choice = menu.run()
         if choice == "Salir" or choice == "salir":
-            pygame.quit()
-            sys.exit(0)
+            return
         elif choice == "Jugar partida":
             # Preguntar modo (vs IA por defecto)
             game = Game(screen, vs_ai=True, player_name="Jugador")
             res = game.play()
             if res == "salir":
-                pygame.quit()
+                return
                 sys.exit(0)
             # volver al menu
         elif choice == "Ver reglas":
@@ -65,7 +64,7 @@ def show_rules(screen):
         pygame.display.flip()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
+                return
                 sys.exit(0)
             if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                 showing = False
@@ -88,7 +87,7 @@ def show_history(screen):
         pygame.display.flip()
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
+                return
                 sys.exit(0)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_ESCAPE:

@@ -210,12 +210,24 @@ def main():
             pygame.quit(); sys.exit()
         elif destino == "play":
             eleccion = menu_play()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    menu_principal()
             if eleccion == "BLACKJACK":
                 mainBlackjack()
+                for event in pygame.event.get():    
+                    if event.type == pygame.QUIT:
+                        menu_principal()
             elif eleccion == "TRUCO":
                 mainTruco()
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        menu_principal()
             elif eleccion == "MINAS":
                 mainMinas()
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        menu_principal()
             elif eleccion == "BACK":
                 continue
 

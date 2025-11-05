@@ -81,10 +81,10 @@ def mainBlackjack():
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    pygame.quit(); sys.exit()
+                    return
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if salir_btn.collidepoint(event.pos):
-                        pygame.quit(); sys.exit()
+                        return
                     elif apuesta_mas_btn.collidepoint(event.pos) and player["bet"] + 50 <= player["money"]:
                         player["bet"] += 50
                     elif apuesta_menos_btn.collidepoint(event.pos) and player["bet"] - 50 >= 50:
@@ -196,10 +196,10 @@ def mainBlackjack():
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    pygame.quit(); sys.exit()
+                    return
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if salir_btn.collidepoint(event.pos):
-                        pygame.quit(); sys.exit()
+                        return
                     # Si hay game over, manejar los botones de siguiente mano y otra ronda
                     if game_over:
                         if is_split and current_split_hand == 0 and siguienteMano_btn.collidepoint(event.pos):
@@ -322,7 +322,6 @@ def mainBlackjack():
 
         current_player = (current_player + 1) % 2
 
-    pygame.quit()
     print("Fin del juego.")
 
 

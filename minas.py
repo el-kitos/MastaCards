@@ -9,7 +9,7 @@ pygame.init()
 # --- CONFIGURACIÓN ---
 ANCHO, ALTO = 600, 700
 VENTANA = pygame.display.set_mode((ANCHO, ALTO))
-pygame.display.set_caption("Juego de Minas - Temuliano")
+pygame.display.set_caption("Minas")
 
 # Colores
 NEGRO = (0, 0, 0)
@@ -25,7 +25,7 @@ AZUL = (50, 150, 255)
 FILAS, COLUMNAS = 5, 5
 TAM_CASILLA = 80
 GAP = 8
-OFFSET_Y = 250  # 🔽 Grilla más abajo
+OFFSET_Y = 250  # Grilla más abajo
 
 # Fuente
 fuente = pygame.font.SysFont("Arial", 28, bold=True)
@@ -212,6 +212,9 @@ class Juego:
             pygame.draw.rect(ventana, BLANCO, iniciar_rect, 2, border_radius=6)
             ventana.blit(fuente_peque.render("INICIAR", True, BLANCO), (iniciar_rect.x + 35, iniciar_rect.y + 8))
             boton_rects.append(('iniciar', iniciar_rect, monto))
+            # Boton de "Salir"
+            retirar_rect = pygame.Rect(480, 20, 100, 40)
+            pygame.draw.rect()
 
         # Grilla
         mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -278,8 +281,7 @@ def mainMinas():
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
+                return
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = event.pos
