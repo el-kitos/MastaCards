@@ -172,8 +172,8 @@ class Juego:
         ventana.fill((10, 10, 10))
 
         # Textos
-        ventana.blit(fuente.render(f"Banca: ${self.banca}", True, CELESTE), (20, 18))
-        ventana.blit(fuente.render(f"Ganancia: ${int(self.dinero_actual)}", True, ACENTO), (20, 98))
+        ventana.blit(fuente_peque.render(f"Banca: ${self.banca}", True, CELESTE), (20, 18))
+        ventana.blit(fuente_peque.render(f"Ganancia: ${int(self.dinero_actual)}", True, ACENTO), (20, 98))
 
         boton_rects = []
 
@@ -212,9 +212,7 @@ class Juego:
             pygame.draw.rect(ventana, BLANCO, iniciar_rect, 2, border_radius=6)
             ventana.blit(fuente_peque.render("INICIAR", True, BLANCO), (iniciar_rect.x + 35, iniciar_rect.y + 8))
             boton_rects.append(('iniciar', iniciar_rect, monto))
-            # Boton de "Salir"
-            retirar_rect = pygame.Rect(480, 20, 100, 40)
-            pygame.draw.rect()
+            
 
         # Grilla
         mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -262,9 +260,15 @@ class Juego:
         if self.msg_timer > 0 and self.msg:
             ventana.blit(fuente_peque.render(self.msg, True, (255,220,120)), (20, 240))
             self.msg_timer -= 1
+                
+                # --- Botón de Salir (siempre visible) ---
+        fuente_btn = pygame.font.Font(None, 36)
+        salir_texto = fuente_btn.render("Salir", True, (255, 255, 255))
+        salir_rect = salir_texto.get_rect(bottomright=(590, 690))
+        ventana.blit(salir_texto, salir_rect)
 
         pygame.display.flip()
-        return boton_rects, retirar_rect
+        return boton_rects, retirar_rect, salir_rect
 
 
 def mainMinas():
@@ -276,12 +280,15 @@ def mainMinas():
             pygame.quit()
             sys.exit()
 
-        boton_rects, retirar_rect = juego.dibujar(VENTANA)
+        boton_rects, retirar_rect, salir_rect = juego.dibujar(VENTANA)
         juego.actualizar_perdida()
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return
+            if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                if salir_rect.collidepoint(event.pos):
+                    return
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 x, y = event.pos
