@@ -224,7 +224,13 @@ def main():
                     if event.type == pygame.QUIT:
                         menu_principal()
             elif eleccion == "MINAS":
+                global screen
+                res_original = (ANCHO,ALTO)
+                screen = pygame.display.set_mode((600, 700))
+                pygame.display.set_caption("Minas")
                 mainMinas()
+                screen = pygame.display.set_mode(res_original)
+                pygame.display.set_caption("MASTA - Menú")
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         menu_principal()
