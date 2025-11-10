@@ -5,7 +5,6 @@ import os
 import time
 
 pygame.init()
-
 # --- CONFIGURACIÓN ---
 ANCHO, ALTO = 600, 700
 VENTANA = pygame.display.set_mode((ANCHO, ALTO))

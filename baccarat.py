@@ -3,6 +3,7 @@ import random
 import sys
 import time
 from Funciones_Poker import draw_button,draw_text,render_card,render_back_card,animate_card,create_deck,draw_hand
+from Menu import menu_principal
 #Cartas
 suits = ['♠', '♥', '♦', '♣']
 ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
@@ -51,7 +52,7 @@ loading = True
 while loading:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            pygame.quit()
+            menu_principal()
             sys.exit()
 
     # Fondo con degradado
@@ -151,10 +152,10 @@ def mainBaccarat():
         while not ronda_terminada:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    pygame.quit(); sys.exit()
+                    menu_principal()
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if salir_btn.collidepoint(event.pos):
-                        pygame.quit(); sys.exit()
+                        menu_principal()
 
                     # Si hay animaciones en curso, bloquear entradas de apuesta/elección
                     if animaciones:
@@ -287,7 +288,7 @@ def mainBaccarat():
         current_player = (current_player + 1) % 2 
 
 
-    pygame.quit()   
+    menu_principal()  
     print("Fin del juego.")
 
 if __name__ == "__main__":

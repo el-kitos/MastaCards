@@ -1,6 +1,4 @@
-from blackjack import mainBlackjack
-from truco.mainT import mainTruco
-from minas import mainMinas
+import importlib
 import pygame
 import sys
 import os
@@ -101,7 +99,7 @@ def menu_principal():
 
 
 def menu_play():
-    opciones = ["BLACKJACK", "TRUCO", "MINAS", "BACK"]
+    opciones = ["BLACKJACK", "BACCARAT", "TRUCO", "MINAS", "BACK"]
     seleccion = 0
     fondo = cargar_imagen("mastafamilyfriendly.png")
     fuente = pygame.font.Font(None, 72)
@@ -110,7 +108,8 @@ def menu_play():
         (ANCHO // 2, int(ALTO * 0.45)),
         (ANCHO // 2, int(ALTO * 0.55)),
         (ANCHO // 2, int(ALTO * 0.65)),
-        (ANCHO // 2, int(ALTO * 0.75))
+        (ANCHO // 2, int(ALTO * 0.75)),
+        (ANCHO // 2, int(ALTO * 0.85))
     ]
 
     cursor_hand = pygame.cursors.Cursor(pygame.SYSTEM_CURSOR_HAND)
@@ -214,12 +213,20 @@ def main():
                 if event.type == pygame.QUIT:
                     menu_principal()
             if eleccion == "BLACKJACK":
-                mainBlackjack()
+                mod = importlib.import_module("blackjack")
+                mod.mainBlackjack()
                 for event in pygame.event.get():    
                     if event.type == pygame.QUIT:
                         menu_principal()
             elif eleccion == "TRUCO":
-                mainTruco()
+                mod = importlib.import_module("truco.mainT")
+                mod.mainTruco()
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        menu_principal()
+            elif eleccion == "BACCARAT":
+                mod = importlib.import_module("baccarat")
+                mod.mainBaccarat()
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         menu_principal()
@@ -228,7 +235,8 @@ def main():
                 res_original = (ANCHO,ALTO)
                 screen = pygame.display.set_mode((600, 700))
                 pygame.display.set_caption("Minas")
-                mainMinas()
+                mod = importlib.import_module("minas")
+                mod.mainMinas()
                 screen = pygame.display.set_mode(res_original)
                 pygame.display.set_caption("MASTA - Menú")
                 for event in pygame.event.get():
