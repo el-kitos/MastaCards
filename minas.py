@@ -275,7 +275,7 @@ def mainMinas():
     clock = pygame.time.Clock()
 
     while True:
-        if juego.banca <= 0:
+        if juego.banca <= 0 and not juego.jugando:
             pygame.quit()
             sys.exit()
 
