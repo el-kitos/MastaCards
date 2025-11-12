@@ -52,7 +52,7 @@ loading = True
 while loading:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
-            menu_principal()
+            pygame.quit()
             sys.exit()
 
     # Fondo con degradado
@@ -152,10 +152,10 @@ def mainBaccarat():
         while not ronda_terminada:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    menu_principal()
+                    return
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if salir_btn.collidepoint(event.pos):
-                        menu_principal()
+                        return
 
                     # Si hay animaciones en curso, bloquear entradas de apuesta/elección
                     if animaciones:
