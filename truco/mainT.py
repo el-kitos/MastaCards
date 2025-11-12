@@ -2,6 +2,7 @@
 Archivo de entrada: inicializa Pygame, muestra el menu y ejecuta las pantallas.
 """
 import pygame
+
 if not __name__ == "__main__":
     from truco.menu import Menu
     from truco.juego import Game
