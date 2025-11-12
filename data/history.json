@@ -40,5 +40,23 @@
     "player_score": 1,
     "cpu_score": 1,
     "timestamp": 1761748390.273944
+  },
+  {
+    "hand_winner": "Jugador",
+    "player_score": 3,
+    "cpu_score": 2,
+    "timestamp": 1762952167.1177592
+  },
+  {
+    "hand_winner": "CPU",
+    "player_score": 0,
+    "cpu_score": 1,
+    "timestamp": 1762952329.4534264
+  },
+  {
+    "hand_winner": "Jugador",
+    "player_score": 1,
+    "cpu_score": 2,
+    "timestamp": 1762952375.7667704
   }
 ]
