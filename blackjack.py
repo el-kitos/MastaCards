@@ -55,11 +55,9 @@ def mainBlackjack():
             current_player = (current_player + 1) % 2
             continue
 
-        # -----------------------------
         # FASE DE APUESTA (se salta al inicio para iniciar animación directamente)
-        # -----------------------------
-        # Ajustar apuesta está desactivado para empezar directo con el reparto
-        ajustar_apuesta = False
+        
+        ajustar_apuesta = True
         btns_y = 600
         spacing = 20
         btn_width = 150
