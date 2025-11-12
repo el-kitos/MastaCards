@@ -187,9 +187,9 @@ def mainBaccarat():
                 p_card = player_hand[-1]
                 d_card = dealer_hand[-1]
                 if sound_card: sound_card.play()
-                animaciones.append(animate_card(card_images[p_card], (ANCHO // 2, ALTO // 2), (100 + (len(player_hand)-1) * 70, 380), card_key=p_card))
+                animaciones.append(animate_card(card_images[p_card], (ANCHO // 2, ALTO // 2), (100 + (len(player_hand)-1) * 70, 380), card_key=p_card, duration = 1000))
                 if sound_card: sound_card.play()
-                animaciones.append(animate_card(card_images[d_card], (ANCHO // 2, ALTO // 2), (100 + (len(dealer_hand)-1) * 70, 100), card_key=d_card))
+                animaciones.append(animate_card(card_images[d_card], (ANCHO // 2, ALTO // 2), (100 + (len(dealer_hand)-1) * 70, 100), card_key=d_card, duration = 1000))
                 deal_started = True
 
             # Limpiar la pantalla y dibujar la mesa y la interfaz
