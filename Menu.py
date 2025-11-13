@@ -222,9 +222,8 @@ def main():
                     if event.type == pygame.QUIT:
                         menu_principal()
             elif eleccion == "TRUCO":
-                #mod = importlib.import_module("truco.mainT")
-                #-mod.mainTruco()
-                pantalla_proximamente()
+                mod = importlib.import_module("truco.mainT")
+                mod.mainTruco()
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         menu_principal()
