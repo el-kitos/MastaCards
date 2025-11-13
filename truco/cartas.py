@@ -7,6 +7,13 @@ from typing import List, Tuple, Dict
 import os
 import pygame
 
+# Ruta segura para IMG (usa la carpeta del módulo y, si no existe, busca en la carpeta padre)
+BASE_DIR = os.path.dirname(__file__)
+IMG_DIR = os.path.join(BASE_DIR, "IMG")
+if not os.path.isdir(IMG_DIR):
+    IMG_DIR = os.path.join(os.path.dirname(BASE_DIR), "IMG")
+IMG_DIR = os.path.abspath(IMG_DIR)
+
 cartas_truco = {
 
     "1espada": {"valor_truco": 15, "valor_envido": 1, "img": pygame.image.load(os.path.join("IMG", "1_de_espada.png"))},
@@ -56,8 +63,6 @@ RANKS = (1,2,3,4,5,6,7,10,11,12)  # Baraja española de 40 cartas
 
 # Orden de Truco simplificado: 1 (alto),3,2,12,11,10,7,6,5,4
 TRUCO_RANK_ORDER = {1:0, 3:1, 2:2, 12:3, 11:4, 10:5, 7:6, 6:7, 5:8, 4:9}
-
-IMG_DIR = "IMG"
 
 def cargar_imagen(nombre, size=(20,20), fallback_color=(100, 100, 100)):
     ruta = os.path.join(IMG_DIR, nombre)
