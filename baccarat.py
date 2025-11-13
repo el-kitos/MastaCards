@@ -196,8 +196,8 @@ def mainBaccarat():
             screen.fill(GREEN_TABLE)
             pygame.draw.rect(screen, (20, 90, 20), (0, 550, ANCHO, 150))
             pygame.draw.rect(screen, BLACK , rect_negro, width=10)
-            draw_text(f"{player['name']} - Dinero: ${player['money']}", 20, 20, screen)
-            draw_text(f"Apuesta: ${player['bet']}", 20, 60, screen)
+            draw_text(f"{player['name']} - Masta Coins: ${player['money']}", 20, 20, screen)
+            draw_text(f"Inversion: ${player['bet']}", 20, 60, screen)
 
             # Mostrar las manos y valores solo después de que el jugador haya elegido
             if eleccion != "" or game_over:

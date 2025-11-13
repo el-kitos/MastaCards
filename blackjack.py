@@ -69,8 +69,8 @@ def mainBlackjack():
 
         while ajustar_apuesta:
             screen.fill(GREEN_TABLE)
-            draw_text(f"{player['name']} - Dinero: ${player['money']}", 20, 20, screen)
-            draw_text(f"Apuesta: ${player['bet']}", 20, 60, screen)
+            draw_text(f"{player['name']} - Masta Coins: ${player['money']}", 20, 20, screen)
+            draw_text(f"Inversion: ${player['bet']}", 20, 60, screen)
 
             draw_button(apuesta_mas_btn, "+50", font, screen, player["bet"] + 50 <= player["money"])
             draw_button(apuesta_menos_btn, "-50", font, screen, player["bet"] - 50 >= 50)
@@ -143,8 +143,8 @@ def mainBlackjack():
             pygame.draw.rect(screen, (20, 90, 20), (0, 550, WIDTH, 150))
             pygame.draw.rect(screen, BLACK, (0,0,WIDTH,550), width=10)
 
-            draw_text(f"{player['name']} - Dinero: ${player['money']}", 20, 20, screen)
-            draw_text(f"Apuesta: ${player['bet']}", 20, 60, screen)
+            draw_text(f"{player['name']} - Masta Coins: ${player['money']}", 20, 20, screen)
+            draw_text(f"Inversion: ${player['bet']}", 20, 60, screen)
 
             # Dibujar cartas
             draw_hand(player_hand, 380, card_back, card_images, screen)

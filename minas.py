@@ -56,6 +56,7 @@ def cargar_imagen(nombre, size=None, fallback_color=(100, 100, 100)):
 money_img = cargar_imagen("money.png", (TAM_CASILLA-20, TAM_CASILLA-20), (0, 200, 0))
 bomb_img = cargar_imagen("bomb.png", (TAM_CASILLA-20, TAM_CASILLA-20), (200, 0, 0))
 tile_img = cargar_imagen("tile.png", (TAM_CASILLA, TAM_CASILLA), (30, 30, 30))
+huergo_img = cargar_imagen("pixel_huergo.png", (TAM_CASILLA-20, TAM_CASILLA-20), (0, 200, 0))
 
 
 # --- Lista de montos posibles ---
@@ -231,7 +232,7 @@ class Juego:
                     if self.matriz_minas[f][c]:
                         ventana.blit(bomb_img, (x + 10, y + 10))
                     else:
-                        ventana.blit(money_img, (x + 10, y + 10))
+                        ventana.blit(huergo_img, (x + 10, y + 10))
 
         # Botón retirar
         retirar_rect = pygame.Rect(480, 20, 100, 40)
