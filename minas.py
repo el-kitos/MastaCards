@@ -33,8 +33,12 @@ fuente_peque = pygame.font.SysFont("Arial", 20)
 # Multiplicadores por cantidad de minas
 MULTIPLICADORES = {3: 1.054, 5: 1.12, 10: 1.23, 15: 1.56, 24: 23.0}
 
-# Carpeta de imágenes
-IMG_DIR = "IMG"
+# Carpeta de imágenes (ruta absoluta segura)
+BASE_DIR = os.path.dirname(__file__)
+IMG_DIR = os.path.join(BASE_DIR, "IMG")
+# si no existe, intenta en la carpeta padre (por si el archivo estuviera dentro de un submódulo)
+if not os.path.isdir(IMG_DIR):
+    IMG_DIR = os.path.join(os.path.dirname(BASE_DIR), "IMG")
 
 
 def cargar_imagen(nombre, size=None, fallback_color=(100, 100, 100)):

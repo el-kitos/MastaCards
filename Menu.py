@@ -22,6 +22,9 @@ HBTN = int(ALTO * 0.085)
 # ---------------- UTILIDADES ---------------- #
 BASE_DIR = os.path.dirname(__file__)
 IMG_DIR = os.path.join(BASE_DIR, "IMG")
+# fallback: si no existe, buscar en la carpeta padre
+if not os.path.isdir(IMG_DIR):
+    IMG_DIR = os.path.join(os.path.dirname(BASE_DIR), "IMG")
 
 def cargar_imagen(nombre, fallback_color=(10, 10, 10)):
     ruta = os.path.join(IMG_DIR, nombre)
