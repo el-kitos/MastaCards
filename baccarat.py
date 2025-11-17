@@ -153,17 +153,9 @@ def mainBaccarat():
         while not ronda_terminada:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-<<<<<<< HEAD
-                    # devolver control al menú (Menu.py)
                     return
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if salir_btn.collidepoint(event.pos):
-                        # salir de Baccarat y volver al menú
-=======
-                    return
-                elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if salir_btn.collidepoint(event.pos):
->>>>>>> c27580e928efc3797cc1d2b80d98c94c8e799e51
                         return
 
                     # Si hay animaciones en curso, bloquear entradas de apuesta/elección
