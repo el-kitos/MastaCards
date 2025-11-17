@@ -153,11 +153,17 @@ def mainBaccarat():
         while not ronda_terminada:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
+<<<<<<< HEAD
                     # devolver control al menú (Menu.py)
                     return
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if salir_btn.collidepoint(event.pos):
                         # salir de Baccarat y volver al menú
+=======
+                    return
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+                    if salir_btn.collidepoint(event.pos):
+>>>>>>> c27580e928efc3797cc1d2b80d98c94c8e799e51
                         return
 
                     # Si hay animaciones en curso, bloquear entradas de apuesta/elección
@@ -190,17 +196,17 @@ def mainBaccarat():
                 p_card = player_hand[-1]
                 d_card = dealer_hand[-1]
                 if sound_card: sound_card.play()
-                animaciones.append(animate_card(card_images[p_card], (ANCHO // 2, ALTO // 2), (100 + (len(player_hand)-1) * 70, 380), card_key=p_card))
+                animaciones.append(animate_card(card_images[p_card], (ANCHO // 2, ALTO // 2), (100 + (len(player_hand)-1) * 70, 380), card_key=p_card, duration = 1000))
                 if sound_card: sound_card.play()
-                animaciones.append(animate_card(card_images[d_card], (ANCHO // 2, ALTO // 2), (100 + (len(dealer_hand)-1) * 70, 100), card_key=d_card))
+                animaciones.append(animate_card(card_images[d_card], (ANCHO // 2, ALTO // 2), (100 + (len(dealer_hand)-1) * 70, 100), card_key=d_card, duration = 1000))
                 deal_started = True
 
             # Limpiar la pantalla y dibujar la mesa y la interfaz
             screen.fill(GREEN_TABLE)
             pygame.draw.rect(screen, (20, 90, 20), (0, 550, ANCHO, 150))
             pygame.draw.rect(screen, BLACK , rect_negro, width=10)
-            draw_text(f"{player['name']} - Dinero: ${player['money']}", 20, 20, screen)
-            draw_text(f"Apuesta: ${player['bet']}", 20, 60, screen)
+            draw_text(f"{player['name']} - Masta Coins: ${player['money']}", 20, 20, screen)
+            draw_text(f"Inversion: ${player['bet']}", 20, 60, screen)
 
             # Mostrar las manos y valores solo después de que el jugador haya elegido
             if eleccion != "" or game_over:

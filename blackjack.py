@@ -55,11 +55,9 @@ def mainBlackjack():
             current_player = (current_player + 1) % 2
             continue
 
-        # -----------------------------
         # FASE DE APUESTA (se salta al inicio para iniciar animación directamente)
-        # -----------------------------
-        # Ajustar apuesta está desactivado para empezar directo con el reparto
-        ajustar_apuesta = False
+        
+        ajustar_apuesta = True
         btns_y = 600
         spacing = 20
         btn_width = 150
@@ -71,8 +69,8 @@ def mainBlackjack():
 
         while ajustar_apuesta:
             screen.fill(GREEN_TABLE)
-            draw_text(f"{player['name']} - Dinero: ${player['money']}", 20, 20, screen)
-            draw_text(f"Apuesta: ${player['bet']}", 20, 60, screen)
+            draw_text(f"{player['name']} - Masta Coins: ${player['money']}", 20, 20, screen)
+            draw_text(f"Inversion: ${player['bet']}", 20, 60, screen)
 
             draw_button(apuesta_mas_btn, "+50", font, screen, player["bet"] + 50 <= player["money"])
             draw_button(apuesta_menos_btn, "-50", font, screen, player["bet"] - 50 >= 50)
@@ -107,13 +105,13 @@ def mainBlackjack():
             card = deck.pop()
             player_hand.append(card)
             if sound_card: sound_card.play()
-            anim = animate_card(card_images[card], (WIDTH // 2, HEIGHT // 2), (100 + len(player_hand) * 70, 380), card_key=card)
+            anim = animate_card(card_images[card], (WIDTH // 2, HEIGHT // 2), (100 + len(player_hand) * 70, 380), card_key=card, duration = 1000)
             animaciones.append(anim)
 
             card_d = deck.pop()
             dealer_hand.append(card_d)
             if sound_card: sound_card.play()
-            anim_d = animate_card(card_images[card_d], (WIDTH // 2, HEIGHT // 2), (100 + len(dealer_hand) * 70, 100), card_key=card_d)
+            anim_d = animate_card(card_images[card_d], (WIDTH // 2, HEIGHT // 2), (100 + len(dealer_hand) * 70, 100), card_key=card_d, duration = 1000)
             animaciones.append(anim_d)
 
         # -----------------------------
@@ -145,8 +143,8 @@ def mainBlackjack():
             pygame.draw.rect(screen, (20, 90, 20), (0, 550, WIDTH, 150))
             pygame.draw.rect(screen, BLACK, (0,0,WIDTH,550), width=10)
 
-            draw_text(f"{player['name']} - Dinero: ${player['money']}", 20, 20, screen)
-            draw_text(f"Apuesta: ${player['bet']}", 20, 60, screen)
+            draw_text(f"{player['name']} - Masta Coins: ${player['money']}", 20, 20, screen)
+            draw_text(f"Inversion: ${player['bet']}", 20, 60, screen)
 
             # Dibujar cartas
             draw_hand(player_hand, 380, card_back, card_images, screen)
@@ -223,7 +221,7 @@ def mainBlackjack():
                         card = deck.pop()
                         player_hand.append(card)
                         if sound_card: sound_card.play()
-                        anim = animate_card(card_images[card], (WIDTH//2, HEIGHT//2), (100 + len(player_hand)*70, 380), card_key=card)
+                        anim = animate_card(card_images[card], (WIDTH//2, HEIGHT//2), (100 + len(player_hand)*70, 380), card_key=card, duration = 1000)
                         animaciones.append(anim)
                         if hand_value(player_hand) > 21:
                             result = "¡Te pasaste! Pierdes."
@@ -239,7 +237,7 @@ def mainBlackjack():
                             card = deck.pop()
                             dealer_hand.append(card)
                             if sound_card: sound_card.play()
-                            anim = animate_card(card_images[card], (WIDTH//2, HEIGHT//2), (100 + len(dealer_hand)*70, 100), card_key=card)
+                            anim = animate_card(card_images[card], (WIDTH//2, HEIGHT//2), (100 + len(dealer_hand)*70, 100), card_key=card, duration = 1000)
                             animaciones.append(anim)
                         pending_dealer_resolution = True
                     # Doblar
@@ -254,7 +252,7 @@ def mainBlackjack():
                             # duplicar la apuesta (no restamos ahora; se aplica al resolver)
                             player["bet"] *= 2
                             # encolar animación de la carta recibida
-                            anim = animate_card(card_images[card], (WIDTH//2, HEIGHT//2), (100 + len(player_hand)*70, 380), card_key=card)
+                            anim = animate_card(card_images[card], (WIDTH//2, HEIGHT//2), (100 + len(player_hand)*70, 380), card_key=card, duration = 1000)
                             animaciones.append(anim)
                             # el jugador se planta automáticamente tras doblar
                             stand = True
@@ -280,7 +278,7 @@ def mainBlackjack():
                                 card = deck.pop()
                                 hand.append(card)
                                 if sound_card: sound_card.play()
-                                anim = animate_card(card_images[card], (WIDTH//2, HEIGHT//2), (100 + len(hand)*70, 380), card_key=card)
+                                anim = animate_card(card_images[card], (WIDTH//2, HEIGHT//2), (100 + len(hand)*70, 380), card_key=card, duration = 1000)
                                 animaciones.append(anim)
                             
                             player["money"] -= player["bet"]  # Descontar la apuesta adicional
