@@ -44,7 +44,7 @@ def mainTruco():
 def show_rules(screen):
     font = pygame.font.SysFont("arial", 18)
     rules = [
-        "Reglas (simplificadas):",
+        "Reg las (simplificadas):",
         "- Se reparten 3 cartas a cada jugador.",
         "- Se juegan hasta 3 manos por ronda; quien gana 2 manos gana la ronda.",
         "- Orden de cartas (mayor a menor simplificado): 1,3,2,12,11,10,7,6,5,4",

@@ -8,15 +8,15 @@ SISTEMA CORRECTO:
 
 import pygame
 try:
-    from truco.cartas import Deck, compare_cards, calculate_envido, Card
+    from truco.cartas import Deck, compare_cards, calculate_envido, Card, cargar_imagenes_cartas
     from truco.utils import load_card_image, draw_text_center
     from truco.data_manager import save_history
-    from truco.ai import choose_card_ai, decide_accept_truco, decide_accept_envido
+    from truco.ai import choose_card_ai, decide_accept_truco, decide_accept_envido, decide_call_envido, decide_call_truco
 except Exception:
-    from cartas import Deck, compare_cards, calculate_envido, Card
+    from cartas import Deck, compare_cards, calculate_envido, Card, cargar_imagenes_cartas
     from utils import load_card_image, draw_text_center
     from data_manager import save_history
-    from ai import choose_card_ai, decide_accept_truco, decide_accept_envido
+    from ai import choose_card_ai, decide_accept_truco, decide_accept_envido, decide_call_envido, decide_call_truco
 
 import time
 import random
@@ -590,7 +590,7 @@ class Game:
         
         # ========== INSTRUCCIONES (abajo) ==========
         instr = "CLICK: Jugar carta  |  T: Cantar Truco  |  E: Cantar Envido  |  ESC: Menú"
-        draw_text_center(self.screen, instr, SCREEN_W//2, SCREEN_H - 25, self.font_small, (255, 255, 255))
+        draw_text_center(self.screen, instr, SCREEN_W//2, SCREEN_H - 25, self.font_medium, (255, 255, 255))
 
     def get_player_card_rects(self):
         """Rectángulos de cartas del jugador"""
