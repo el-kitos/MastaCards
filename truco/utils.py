@@ -4,10 +4,21 @@ Funciones utilitarias: carga de imágenes de cartas con fallback
 
 import pygame
 from typing import Tuple
-from truco.cartas import Card
+try:
+    from truco.cartas import Card
+except Exception:
+    from cartas import Card
 import os
 
-IMG_DIR = "IMG"
+# Ruta base y assets: intenta en la carpeta del módulo y, si no existe, en la carpeta padre
+BASE_DIR = os.path.dirname(__file__)
+ASSETS_DIR = os.path.join(BASE_DIR, "..", "assets")
+if not os.path.isdir(ASSETS_DIR):
+    # fallback: buscar en la carpeta padre (por si el módulo está en un submódulo)
+    ASSETS_DIR = os.path.join(os.path.dirname(BASE_DIR), "assets")
+ASSETS_DIR = os.path.abspath(ASSETS_DIR)
+
+CARDS_DIR = os.path.join(ASSETS_DIR, "cards")
 
 def load_card_image(card: Card, size: Tuple[int, int]) -> pygame.Surface:
     """

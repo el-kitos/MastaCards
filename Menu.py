@@ -22,6 +22,9 @@ HBTN = int(ALTO * 0.085)
 # ---------------- UTILIDADES ---------------- #
 BASE_DIR = os.path.dirname(__file__)
 IMG_DIR = os.path.join(BASE_DIR, "IMG")
+# fallback: si no existe, buscar en la carpeta padre
+if not os.path.isdir(IMG_DIR):
+    IMG_DIR = os.path.join(os.path.dirname(BASE_DIR), "IMG")
 
 def cargar_imagen(nombre, fallback_color=(10, 10, 10)):
     ruta = os.path.join(IMG_DIR, nombre)
@@ -219,8 +222,9 @@ def main():
                     if event.type == pygame.QUIT:
                         menu_principal()
             elif eleccion == "TRUCO":
-                mod = importlib.import_module("truco.mainT")
-                mod.mainTruco()
+                #mod = importlib.import_module("truco.mainT")
+                #mod.mainTruco()
+                pantalla_proximamente()
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
                         menu_principal()

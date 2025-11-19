@@ -7,7 +7,13 @@ from typing import List, Tuple, Dict
 import os
 import pygame
 
-# Diccionario con todas las cartas, valores y imágenes
+# Ruta segura para IMG (usa la carpeta del módulo y, si no existe, busca en la carpeta padre)
+BASE_DIR = os.path.dirname(__file__)
+IMG_DIR = os.path.join(BASE_DIR, "IMG")
+if not os.path.isdir(IMG_DIR):
+    IMG_DIR = os.path.join(os.path.dirname(BASE_DIR), "IMG")
+IMG_DIR = os.path.abspath(IMG_DIR)
+
 cartas_truco = {
     "1espada": {"valor_truco": 15, "valor_envido": 1, "img": None},
     "1basto": {"valor_truco": 14, "valor_envido": 1, "img": None},
@@ -90,6 +96,9 @@ def cargar_imagenes_cartas():
         else:
             print(f"No se encontró imagen: {nombre_archivo}")
             cartas_truco[key]["img"] = None
+
+
+
 
 class Card:
     def __init__(self, rank: int, suit: str):

@@ -33,8 +33,12 @@ fuente_peque = pygame.font.SysFont("Arial", 20)
 # Multiplicadores por cantidad de minas
 MULTIPLICADORES = {3: 1.054, 5: 1.12, 10: 1.23, 15: 1.56, 24: 23.0}
 
-# Carpeta de imágenes
-IMG_DIR = "IMG"
+# Carpeta de imágenes (ruta absoluta segura)
+BASE_DIR = os.path.dirname(__file__)
+IMG_DIR = os.path.join(BASE_DIR, "IMG")
+# si no existe, intenta en la carpeta padre (por si el archivo estuviera dentro de un submódulo)
+if not os.path.isdir(IMG_DIR):
+    IMG_DIR = os.path.join(os.path.dirname(BASE_DIR), "IMG")
 
 
 def cargar_imagen(nombre, size=None, fallback_color=(100, 100, 100)):
@@ -56,10 +60,11 @@ def cargar_imagen(nombre, size=None, fallback_color=(100, 100, 100)):
 money_img = cargar_imagen("money.png", (TAM_CASILLA-20, TAM_CASILLA-20), (0, 200, 0))
 bomb_img = cargar_imagen("bomb.png", (TAM_CASILLA-20, TAM_CASILLA-20), (200, 0, 0))
 tile_img = cargar_imagen("tile.png", (TAM_CASILLA, TAM_CASILLA), (30, 30, 30))
+huergo_img = cargar_imagen("pixel_huergo.png", (TAM_CASILLA-20, TAM_CASILLA-20), (0, 200, 0))
 
 
 # --- Lista de montos posibles ---
-MONTOS_POSIBLES = [10, 20, 40, 60, 100, 200, 300, 400, 500, 1000, 2000, 5000, 7500, 10000]
+MONTOS_POSIBLES = [1, 10, 20, 40, 60, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 2000, 5000, 6767, 7500, 10000, 50000, 100000, 250000, 500000, 10000000, 50000000, 10000000]
 MINAS_OPCIONES = [3, 5, 10, 15, 24]
 
 
@@ -231,7 +236,7 @@ class Juego:
                     if self.matriz_minas[f][c]:
                         ventana.blit(bomb_img, (x + 10, y + 10))
                     else:
-                        ventana.blit(money_img, (x + 10, y + 10))
+                        ventana.blit(huergo_img, (x + 10, y + 10))
 
         # Botón retirar
         retirar_rect = pygame.Rect(480, 20, 100, 40)
@@ -275,7 +280,7 @@ def mainMinas():
     clock = pygame.time.Clock()
 
     while True:
-        if juego.banca <= 0:
+        if juego.banca <= 0 and not juego.jugando:
             pygame.quit()
             sys.exit()
 

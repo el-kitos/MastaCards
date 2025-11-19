@@ -7,10 +7,17 @@ SISTEMA CORRECTO:
 """
 
 import pygame
-from truco.cartas import Deck, compare_cards, calculate_envido, Card, cargar_imagenes_cartas
-from truco.utils import load_card_image, draw_text_center
-from truco.data_manager import save_history
-from truco.ai import choose_card_ai, decide_accept_truco, decide_accept_envido, decide_call_truco, decide_call_envido
+try:
+    from truco.cartas import Deck, compare_cards, calculate_envido, Card
+    from truco.utils import load_card_image, draw_text_center
+    from truco.data_manager import save_history
+    from truco.ai import choose_card_ai, decide_accept_truco, decide_accept_envido
+except Exception:
+    from cartas import Deck, compare_cards, calculate_envido, Card
+    from utils import load_card_image, draw_text_center
+    from data_manager import save_history
+    from ai import choose_card_ai, decide_accept_truco, decide_accept_envido
+
 import time
 import random
 

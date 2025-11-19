@@ -3,7 +3,8 @@ import random
 import sys
 import time
 from Funciones_Poker import draw_button,draw_text,render_card,render_back_card,animate_card,create_deck,draw_hand
-from Menu import menu_principal
+# No importar menu_principal aquí: devolveremos el control al llamador (Menu.py)
+# from Menu import menu_principal
 #Cartas
 suits = ['♠', '♥', '♦', '♣']
 ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A']
@@ -196,8 +197,8 @@ def mainBaccarat():
             screen.fill(GREEN_TABLE)
             pygame.draw.rect(screen, (20, 90, 20), (0, 550, ANCHO, 150))
             pygame.draw.rect(screen, BLACK , rect_negro, width=10)
-            draw_text(f"{player['name']} - Dinero: ${player['money']}", 20, 20, screen)
-            draw_text(f"Apuesta: ${player['bet']}", 20, 60, screen)
+            draw_text(f"{player['name']} - Masta Coins: ${player['money']}", 20, 20, screen)
+            draw_text(f"Inversion: ${player['bet']}", 20, 60, screen)
 
             # Mostrar las manos y valores solo después de que el jugador haya elegido
             if eleccion != "" or game_over:
@@ -288,8 +289,8 @@ def mainBaccarat():
         current_player = (current_player + 1) % 2 
 
 
-    menu_principal()  
     print("Fin del juego.")
+    return
 
 if __name__ == "__main__":
     mainBaccarat()
