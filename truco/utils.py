@@ -4,7 +4,10 @@ Funciones utilitarias: dibujo de cartas fallback, textos, manejo básico de even
 
 import pygame
 from typing import Tuple
-from truco.cartas import Card
+try:
+    from truco.cartas import Card
+except Exception:
+    from cartas import Card
 import os
 
 # Ruta base y assets: intenta en la carpeta del módulo y, si no existe, en la carpeta padre

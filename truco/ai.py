@@ -1,7 +1,10 @@
 
 import random
 from typing import List
-from truco.cartas import Card, calculate_envido
+try:
+    from truco.cartas import Card, calculate_envido
+except Exception:
+    from cartas import Card, calculate_envido
 
 def choose_card_ai(hand: List[Card], table_cards: List[Card], turn:int) -> Card:
     """
