@@ -73,8 +73,16 @@ class Game:
         self.mensaje = ""
         self.mensaje_timer = 0
         
-        # Turno inicial (aleatorio o del ganador anterior)
-        self.turn = "player" if random.random() < 0.5 else "cpu"
+        # Turno inicial (si hay next_hand_starter, usarlo; si no, aleatorio)
+        if hasattr(self, "next_hand_starter") and self.next_hand_starter is not None:
+            if self.next_hand_starter == self.player_name:
+                self.turn = "player"
+            else:
+                self.turn = "cpu"
+            # resetear para la siguiente mano si aplica
+            self.next_hand_starter = None
+        else:
+            self.turn = "player" if random.random() < 0.5 else "cpu"
         self.mano_terminada = False
 
     def mostrar_mensaje(self, texto, duracion=2.0):
@@ -139,7 +147,12 @@ class Game:
                     elif result == "menu":
                         return "menu"
                 else:
-                    self.cpu_turn()
+                    # Capturar retorno de cpu_turn y manejar salidas del usuario
+                    result = self.cpu_turn()
+                    if result == "salir":
+                        return "salir"
+                    elif result == "menu":
+                        return "menu"
             
             pygame.display.flip()
         
@@ -283,10 +296,10 @@ class Game:
                     self.mostrar_mensaje(f"Envido rechazado - CPU gana 1 punto", 2.5)
                     self.mano_terminada = True
                     self.check_game_over()
-                    return
+                    return None
                 else:
                     self.manejar_comparacion_envido()
-                    return
+                    return None
         
         if not self.truco_cantado and self.vs_ai:
             if decide_call_truco(self.cpu_hand):
@@ -301,7 +314,7 @@ class Game:
                     self.mostrar_mensaje(f"Truco rechazado - CPU gana {self.hand_value} punto", 2.5)
                     self.mano_terminada = True
                     self.check_game_over()
-                    return
+                    return None
                 else:
                     self.truco_cantado = True
                     self.truco_aceptado = True
@@ -310,7 +323,7 @@ class Game:
         
         # CPU juega carta
         if not self.cpu_hand:
-            return
+            return None
         
         time.sleep(0.8)
         cpu_card = choose_card_ai(self.cpu_hand, [c for c, _ in self.table_cards], len(self.table_cards))
@@ -329,7 +342,7 @@ class Game:
             
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    return
+                    return "salir"
                 
                 if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     mx, my = pygame.mouse.get_pos()
@@ -341,12 +354,14 @@ class Game:
                             waiting = False
                             break
                 
-                if event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                    return
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        return "menu"
             
             pygame.display.flip()
         
         self.resolver_jugada()
+        return None
 
     def resolver_jugada(self):
         """Resuelve UNA JUGADA de la mano"""
@@ -373,6 +388,26 @@ class Game:
         
         if winner != "empate":
             self.jugadas_ganadas[winner] += 1
+            # El ganador de la jugada empieza la siguiente jugada
+            if winner == self.player_name:
+                self.turn = "player"
+            else:
+                self.turn = "cpu"
+        else:
+            # En empate: mantener quien inició la jugada como quien empieza la siguiente.
+            # Determinar quién jugó primero en la jugada actual:
+            # si player_card está en la tupla en posición 0 significa que el jugador jugó primero.
+            if player_card is not None and cpu_card is not None:
+                # Si player_card fue puesto en primer lugar => player inició la jugada
+                # La estructura de table_cards guarda (player_card, cpu_card) si el jugador jugó primero,
+                # o (player_card, cpu_card) con player_card=None si la CPU inició. Para el empate, 
+                # comprobamos el orden de inserción: si en la última tupla el primer elemento NO es None,
+                # entonces fue el jugador quien inició; sino la CPU.
+                if last[0] is not None:
+                    self.turn = "player"
+                else:
+                    self.turn = "cpu"
+            # si por algún motivo no podemos determinar, no cambiamos self.turn
         
         time.sleep(1.0)
         
@@ -406,6 +441,9 @@ class Game:
             "cpu_score": self.cpu_score,
             "timestamp": time.time()
         })
+        
+        # Guardar quién debe comenzar la siguiente MANO (el ganador de esta)
+        self.next_hand_starter = winner
         
         self.mano_terminada = True
         self.check_game_over()

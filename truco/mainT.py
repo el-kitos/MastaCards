@@ -44,13 +44,13 @@ def mainTruco():
 def show_rules(screen):
     font = pygame.font.SysFont("arial", 18)
     rules = [
-        "Reg las (simplificadas):",
-        "- Se reparten 3 cartas a cada jugador.",
-        "- Se juegan hasta 3 manos por ronda; quien gana 2 manos gana la ronda.",
-        "- Orden de cartas (mayor a menor simplificado): 1,3,2,12,11,10,7,6,5,4",
-        "- Se puede cantar Truco (T) para subir puntos. El otro puede aceptar o rechazar.",
-        "- Se puede cantar Envido (E) antes de jugar cartas para ganar puntos por combinacion de palo.",
-        "- Historial y puntajes se guardan en data/history.json"
+        "Reglas:",
+        "--> Se reparten 3 cartas a cada jugador.",
+        "--> Se juegan hasta 3 manos por ronda; quien gana 2 manos gana la ronda.",
+        "--> Orden de cartas (mayor a menor simplificado): 1,3,2,12,11,10,7,6,5,4",
+        "--> Se puede cantar Truco (T) para subir puntos. El otro puede aceptar o rechazar.",
+        "--> Se puede cantar Envido (E) antes de jugar cartas para ganar puntos por combinacion de palo.",
+        "--> Historial y puntajes se guardan en data/history.json"
     ]
     showing = True
     while showing:
